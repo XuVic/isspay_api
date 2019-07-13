@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_12_080635) do
+ActiveRecord::Schema.define(version: 2019_07_13_061414) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -42,25 +42,25 @@ ActiveRecord::Schema.define(version: 2019_07_12_080635) do
     t.index ["category_id"], name: "index_products_on_category_id"
   end
 
-  create_table "purchased_products", primary_key: ["product_id", "transaction_id"], force: :cascade do |t|
-    t.bigint "product_id", null: false
-    t.bigint "transaction_id", null: false
+  create_table "purchased_products", id: false, force: :cascade do |t|
+    t.uuid "transaction_id"
+    t.uuid "product_id"
     t.index ["product_id"], name: "index_purchased_products_on_product_id"
     t.index ["transaction_id"], name: "index_purchased_products_on_transaction_id"
   end
 
   create_table "transactions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.float "amount", default: 0.0, null: false
-    t.integer "type", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "account_id"
+    t.integer "genre", default: 0, null: false
     t.index ["account_id"], name: "index_transactions_on_account_id"
   end
 
-  create_table "transfer_details", primary_key: ["receiver_id", "transaction_id"], force: :cascade do |t|
-    t.bigint "transaction_id", null: false
-    t.bigint "receiver_id", null: false
+  create_table "transfer_details", id: false, force: :cascade do |t|
+    t.uuid "transaction_id"
+    t.float "amount", null: false
+    t.uuid "receiver_id"
     t.index ["receiver_id"], name: "index_transfer_details_on_receiver_id"
     t.index ["transaction_id"], name: "index_transfer_details_on_transaction_id"
   end
@@ -74,6 +74,9 @@ ActiveRecord::Schema.define(version: 2019_07_12_080635) do
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "messenger_id", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
