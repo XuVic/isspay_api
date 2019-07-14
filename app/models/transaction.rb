@@ -17,4 +17,12 @@ class Transaction < ApplicationRecord
   belongs_to :account
 
   enum genre: %i[purchase transfer]
+
+  def amount
+    if genre == 'purchase'
+      products.reduce(0) { |s, p| s + p.price }
+    elsif genre == 'transfer'
+      transfer_detail.amount
+    end
+  end
 end
