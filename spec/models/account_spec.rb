@@ -24,14 +24,25 @@ RSpec.describe Account, type: :model do
     let(:products) { 10.times.map { create(:product, :snack, price: 100) } }
 
     context 'not enough money' do
-      it { expect { account.order(products) }.to raise_error(Account::MoneyNotEnough) }
+      it { expect { account.order(products) }.to raise_error(Account::TransactionInvalid) }
+    end
+
+    context 'products are not avilable' do
+      let(:unavailable_products) do
+        product = create(:product, :snack, quantity: 5)
+        10.times.map { Product.where(id: product.id).first }
+      end
+
+      it { expect { account.order(unavailable_products) }.to raise_error(Account::TransactionInvalid) }
     end
 
     context 'enough money' do
       it 'create a transaction' do
         pre_balance = account.balance
-        account.order(products[0..1])
+        pre_quantity = products[0].quantity
         cost = products[0..1].reduce(0) { |c, p| c + p.price }
+        account.order(products[0..1])
+        expect(products[0].quantity).to eq(pre_quantity - 1)
         expect(account.orders[0].products).to eq(products[0..1])
         expect(account.balance).to eq(pre_balance - cost)
       end
@@ -40,7 +51,7 @@ RSpec.describe Account, type: :model do
 
   describe '#transfer' do
     context 'not enough money' do
-      it { expect { account.transfer(receiver, 100000).to raise_error(Account::MoneyNotEnough) } }
+      it { expect { account.transfer(receiver, 100000).to raise_error(Account::TransactionInvalid) } }
     end
 
     context 'enough money' do

@@ -16,7 +16,7 @@ FactoryBot.define do
   factory :product do
     name { Faker::Food.dish }
     price { Random.rand(100) }
-    quantity { Random.rand(50) }
+    quantity { Random.rand(10..50) }
     image_url { 'https://i.imgur.com/eYl9RO4.png' }
 
     trait :snack do

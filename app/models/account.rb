@@ -18,7 +18,7 @@ class Account < ApplicationRecord
   has_many :transfer_details, foreign_key: :receiver_id
   has_many :receipts, through: :transfer_details, source: :transfer
 
-  class MoneyNotEnough < StandardError; end
+  class TransactionInvalid < StandardError; end
 
   def balance
     credit - debit
@@ -26,19 +26,20 @@ class Account < ApplicationRecord
 
   def order(products)
     cost = products.reduce(0) { |c, p| c + p.price }
-    raise MoneyNotEnough if cost > balance
+    raise TransactionInvalid if cost > balance || !products_available?(products)
 
     ActiveRecord::Base.transaction do
       t = Transaction.create(account: self, genre: 'purchase')
       t.products = products
       t.save
+      purchased_products(products)
       self.debit += cost
       save
     end
   end
 
   def transfer(receiver, amount)
-    raise MoneyNotEnough if amount > balance
+    raise TransactionInvalid if amount > balance
 
     ActiveRecord::Base.transaction do
       transaction = Transaction.create(account: self, genre: 'transfer')
@@ -48,5 +49,32 @@ class Account < ApplicationRecord
       self.debit += amount
       save
     end
+  end
+
+  private
+
+  def products_available?(products)
+    products_hash(products).each do |k, v|
+      product = products_hash[k][0]
+
+      return false if !product.available? || product.quantity < v.count
+    end
+    true
+  end
+
+  def purchased_products(products)
+    ActiveRecord::Base.transaction do
+      products_hash(products).each do |k, v|
+        product = products_hash[k][0]
+        product.quantity -= v.count
+        product.save
+      end
+    end
+  end
+
+  def products_hash(products = nil)
+    return @products_hash unless products
+
+    @products_hash = products.group_by(&:id)
   end
 end
