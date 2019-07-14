@@ -7,6 +7,7 @@
 #  updated_at :datetime         not null
 #  account_id :uuid
 #  genre      :integer          default("purchase"), not null
+#  status     :integer          default(0), not null
 #
 
 require 'rails_helper'
@@ -43,6 +44,10 @@ RSpec.describe Transaction, type: :model do
 
     context 'when genre is null' do
       it { expect { create(:transaction, genre: nil) }.to raise_error(ActiveRecord::NotNullViolation) }
+    end
+
+    context 'when status is null' do
+      it { expect { create(:transaction, status: nil) }.to raise_error(ActiveRecord::NotNullViolation) }
     end
   end
 end

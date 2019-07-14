@@ -7,6 +7,7 @@
 #  updated_at :datetime         not null
 #  account_id :uuid
 #  genre      :integer          default("purchase"), not null
+#  status     :integer          default(0), not null
 #
 
 class Transaction < ApplicationRecord
