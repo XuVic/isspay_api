@@ -26,16 +26,12 @@ RSpec.describe Transaction, type: :model do
           expect(p.orders.map(&:id)).to include(purchase.id)
         end
       end
-
-      it 'has an account' do
-        expect(purchase.account.transactions).to include(purchase)
-      end
     end
 
     context 'when transaction is created as transfer' do
       it 'has one receiver' do
         receiver = transfer.receiver
-        expect(receiver.transfers).to include(transfer)
+        expect(receiver.receipts).to include(transfer)
       end
     end
   end
