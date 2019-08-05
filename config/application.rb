@@ -19,6 +19,9 @@ Bundler.require(*Rails.groups)
 
 module IsspayApi
   class Application < Rails::Application
+    
+    config.autoload_paths += %W(#{config.root}/app/serializers)
+    config.eager_load_paths += %W(#{config.root}/app/serializers)
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.2
 

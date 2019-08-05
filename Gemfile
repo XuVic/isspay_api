@@ -34,6 +34,8 @@ gem 'pg', '~> 1.1', '>= 1.1.4'
 gem 'devise', '~> 4.6', '>= 4.6.2'
 # Code style formatter
 gem 'rubocop', '~> 0.72.0'
+# Model serializer
+gem 'fast_jsonapi', '~> 1.5'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -43,6 +45,7 @@ group :development, :test do
   gem 'faker', '~> 1.9', '>= 1.9.6'
   gem 'pry', '~> 0.12.2'
   gem 'rspec-rails', '~> 3.8'
+  gem 'rails-controller-testing', '~> 1.0', '>= 1.0.4'
 end
 
 group :development do

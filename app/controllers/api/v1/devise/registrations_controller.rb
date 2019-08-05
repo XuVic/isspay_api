@@ -1,4 +1,2 @@
-class Api::V1::Devise::RegistrationsController < Devise::RegistrationsController
-  def create
-  end
+class Api::V1::Devise::RegistrationsController < Api::V1::BaseController
 end
