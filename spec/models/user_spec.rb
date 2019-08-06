@@ -53,7 +53,6 @@ RSpec.describe User, type: :model do
 
     not_null_violiation(role: nil)
     not_null_violiation(gender: nil)
-    not_null_violiation(messenger_id: nil)
 
     subject(:record_invalid) { ActiveRecord::RecordInvalid }
     context 'when email is empty' do

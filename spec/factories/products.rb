@@ -22,5 +22,9 @@ FactoryBot.define do
     trait :snack do
       association :category, factory: :category, name: 'Snack'
     end
+
+    trait :drink do
+      association :category, factory: :category, name: 'Drink'
+    end
   end
 end

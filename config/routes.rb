@@ -1,12 +1,20 @@
 Rails.application.routes.draw do
+  api_welcome_msg = 'Welcome to use IssPay API with version '
+  
+  def default_message(message)
+    [200, {'Content-Type' => 'text/json'}, [{message: message}.to_json]]
+  end
+
+  root to: Proc.new { default_message('Please use /api/v1 to fetch data.') }
+
   namespace :api do
     namespace :v1 do
-      scope module: 'devise' do
-        resources :users, only: %i[index update]
-        post 'users', to: 'registrations#create'
-      end
+      api_welcome_msg += 'one.'
 
+      resources :users, only: %i[index create update]
       resources :products, only: %i[index update create destroy]
+      
+      root to: Proc.new { default_message(api_welcome_msg) }
     end
 
     namespace :chatfuel do
