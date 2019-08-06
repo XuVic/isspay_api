@@ -1,11 +1,12 @@
 module RenderHelper
-
-  def render(obj)
+  extend ActiveSupport::Concern
+  
+  def render(obj, options = {})
     return nil unless obj
 
     if error?(obj)
       render_error(obj)
-    else
+    elsif model?(obj)
       render_resource(obj)
     end
   end
@@ -19,7 +20,7 @@ module RenderHelper
   def render_resource(model_obj)
     response.status = 200
     model_name = model_obj.respond_to?(:each) ? model_obj[0].model_name.to_s : model_obj.model_name.to_s
-    model_serializer = "#{model_name}Serializer".constantize.new(model_obj)
+    model_serializer = "Resource::#{model_name}Serializer".constantize.new(model_obj)
     set_response_body model_serializer, { serializer_type: :resource }
   end
 
@@ -30,5 +31,13 @@ module RenderHelper
 
   def error?(obj)
     obj.is_a?(ActiveModel::Errors)
+  end
+
+  def model?(obj)
+    if obj.respond_to?(:each)
+      obj[0].is_a?(ActiveRecord::Base)
+    else
+      obj.is_a?(ActiveRecord::Base)
+    end
   end
 end

@@ -4,7 +4,10 @@ Rails.describe Api::V1::UsersController, type: :request do
   describe '#create' do
     before(:all) do
       @user_attributes = attributes_for(:user)
-      @invalid_attributes = attributes_for(:user).tap {|hash| hash.delete(:email)}
+      @invalid_attributes = attributes_for(:user).tap do |hash| 
+        hash[:email] = 'test'
+        hash[:password_confirmation] = hash[:password] + 'modified'
+      end
     end
     
     context 'Paramters are all correct' do
@@ -12,6 +15,7 @@ Rails.describe Api::V1::UsersController, type: :request do
         post '/api/v1/users', params: { user: @user_attributes }
         @user = User.where(email: @user_attributes[:email])
         @response_body = JSON.parse(response.body)
+        binding.pry
       end
 
       it { expect(@user.exists?).to eq true }
@@ -22,13 +26,13 @@ Rails.describe Api::V1::UsersController, type: :request do
     context 'Parameter are invalid' do
       before(:all) do
         post '/api/v1/users', params: { user: @invalid_attributes }
-        @user = User.where(nick_name: @invalid_attributes[:nick_name])
+        @user = User.where(email: @invalid_attributes[:email])
         @response_body = JSON.parse(response.body)
       end
 
       it { expect(@user.exists?).to eq false }
       it { expect(@response_body['type']).to eq 'error' }
-      it { expect(@response_body['error']).to_not be_nil }
+      it { expect(@response_body['error'].size).to eq 2 }
     end
   end
 end

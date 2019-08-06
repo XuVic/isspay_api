@@ -27,6 +27,8 @@ class User < ApplicationRecord
   enum gender: %i[male female]
   enum role: %i[master phd prof staff alumni admin]
 
+  delegate :credit, :debit, :balance, to: :account
+
   after_create do
     create_account
   end

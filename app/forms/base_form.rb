@@ -15,4 +15,8 @@ class BaseForm
       errors
     end
   end
+
+  # def context
+  #   resource.persisted? ? :save : :update 
+  # end
 end

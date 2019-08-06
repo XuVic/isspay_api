@@ -23,6 +23,7 @@ FactoryBot.define do
     gender { Random.rand(2) }
     email { Faker::Internet.email }
     password { 'abcd1234' }
+    password_confirmation { 'abcd1234' }
     nick_name { Faker::FunnyName.name }
     role { 0 }
     messenger_id { Faker::Internet.password(10) }
