@@ -30,6 +30,8 @@ class ResponseSerializer
       serializable_hash[:data] = data_hash
     when :error
       serializable_hash[:error] = error_hash
+    when :message
+      serializable_hash[:message] = message_hash
     end 
   end
 
@@ -39,5 +41,9 @@ class ResponseSerializer
 
   def error_hash
     serializer.serializable
+  end
+
+  def message_hash
+    serializer
   end
 end

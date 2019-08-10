@@ -12,7 +12,7 @@ RSpec.describe 'Routes for Users', type: :routing do
     context 'authentiacte users credential' do
       it do
         expect(post('api/v1/users/auth'))
-          .to route_to(controller: 'api/v1/users', action: 'auth')
+          .to route_to(controller: 'api/v1/users', action: 'create_token')
       end
     end
 

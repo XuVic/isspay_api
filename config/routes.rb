@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 
       resources :users, only: %i[index create update] do
         collection do
-          post 'auth', to: 'users#auth'
+          post 'auth', to: 'users#create_token'
           get 'test', to: 'users#test'
         end
       end

@@ -1,8 +1,7 @@
 class Api::V1::ProductsController < Api::V1::BaseController
   before_action :find_product, only: %i[destroy update]
-  
-  def create
 
+  def create
   end
 
   def index

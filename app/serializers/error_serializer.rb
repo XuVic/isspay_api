@@ -10,6 +10,8 @@ class ErrorSerializer
   end
 
   def error_messages
+    return errors if errors.is_a?(Array)
+
     @errors.full_messages
   end
 end

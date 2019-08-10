@@ -7,6 +7,14 @@ class AuthToken
   ONE_WEEK = ONE_DAY * 7
   ONE_MONTH = ONE_WEEK * 4
   ONE_YEAR = ONE_MONTH * 12
+  
+  EXPIRES_UNIT = {
+    hour: ONE_HOUR,
+    day: ONE_DAY,
+    week: ONE_WEEK,
+    month: ONE_MONTH,
+    year: ONE_YEAR
+  }
 
   class ExpiredTokenError < StandardError; end
   class InvalidTokenError < StandardError; end
@@ -30,10 +38,11 @@ class AuthToken
   end
 
   class << self
-    def create(payload:, expires_in: ONE_WEEK)
+    def create(payload:, expires_options: nil)
       payload = Payload.new(payload)
       payload64 = encode64(payload.to_json)
-      message = "#{payload64}.#{expire_date(expires_in)}"
+      message = "#{payload64}.#{expires_date(expires_options)}"
+      
       tokenize(message)
     end
 
@@ -45,6 +54,16 @@ class AuthToken
       payload_str = decode64(payload64)
 
       Payload.deserialize(payload_str)
+    end
+
+    def expires_in(expires_options)
+      return ONE_WEEK unless expires_options
+
+      EXPIRES_UNIT[expires_options[:unit]] * expires_options[:n].to_i
+    end
+
+    def expires_date(expires_options)
+      (Time.now + expires_in(expires_options)).to_i
     end
 
     private
@@ -62,12 +81,6 @@ class AuthToken
 
     def serialize(payload)
       payload.to_json
-    end
-
-    def expire_date(expires_in)
-      expires_in = expires_in.to_i
-
-      (Time.now + expires_in).to_i
     end
 
     def expired?(expire_date)
