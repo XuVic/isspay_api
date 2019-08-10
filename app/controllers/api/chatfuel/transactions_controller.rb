@@ -1,7 +1,9 @@
-class Api::Chatfuel::TransactionsController < ApplicationController
-  def create
-  end
+module Api::Chatfuel
+  class TransactionsController < BaseController
+    def create
+    end
 
-  def destroy
+    def destroy
+    end
   end
 end

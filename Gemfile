@@ -36,6 +36,13 @@ gem 'devise', '~> 4.6', '>= 4.6.2'
 gem 'rubocop', '~> 0.72.0'
 # Model serializer
 gem 'fast_jsonapi', '~> 1.5'
+# Cache
+gem 'redis', '~> 4.1', '>= 4.1.2'
+# Configure environment variable
+gem 'econfig', '~> 2.1'
+# Cryptography library
+gem 'rbnacl-libsodium', '~> 1.0', '>= 1.0.16'
+gem 'rbnacl', '~> 5.0'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

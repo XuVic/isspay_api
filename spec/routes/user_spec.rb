@@ -9,17 +9,10 @@ RSpec.describe 'Routes for Users', type: :routing do
       end
     end
 
-    context 'user signin' do
+    context 'authentiacte users credential' do
       it do
-        expect(post('api/v1/users/sign_in'))
-          .to route_to(controller: 'api/v1/users', action: 'sign_in')
-      end
-    end
-
-    context 'user signout' do
-      it do
-        expect(delete('api/v1/users/sign_out'))
-          .to route_to(controller: 'api/v1/users', action: 'sign_out')
+        expect(post('api/v1/users/auth'))
+          .to route_to(controller: 'api/v1/users', action: 'auth')
       end
     end
 

@@ -1,9 +1,10 @@
 class BaseForm
   include ActiveModel::Validations
-  attr_reader :resource
+  attr_reader :resource, :options
 
-  def initialize(resource)
+  def initialize(resource, options = {})
     @resource = resource
+    @options = options
   end
 
   def submit
@@ -14,6 +15,12 @@ class BaseForm
     else
       errors
     end
+  end
+
+  def context
+    return 'default' unless options[:context]
+
+    options[:context]
   end
 
   # def context

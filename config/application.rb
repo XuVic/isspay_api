@@ -18,10 +18,22 @@ require "rails/test_unit/railtie"
 Bundler.require(*Rails.groups)
 
 module IsspayApi
+  extend Econfig::Shortcut
+  Econfig.root = '.'
+  Econfig.env = Rails.env
+
   class Application < Rails::Application
-    
+
+    config.cache_store = :redis_cache_store, { url: IsspayApi.config.REDIS_URL }
+    config.action_controller.perform_caching = true
+
+    config.session_store :cache_store, key: IsspayApi.config.APP_SESSION_KEY
+
     config.autoload_paths += %W(#{config.root}/app/serializers #{config.root}/app/forms #{config.root}/app/validators)
     config.eager_load_paths += %W(#{config.root}/app/serializers #{config.root}/app/forms #{config.root}/app/validators)
+    config.autoload_paths << Rails.root.join('lib')
+    config.eager_load_paths << Rails.root.join('lib')
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.2
 

@@ -15,7 +15,6 @@ Rails.describe Api::V1::UsersController, type: :request do
         post '/api/v1/users', params: { user: @user_attributes }
         @user = User.where(email: @user_attributes[:email])
         @response_body = JSON.parse(response.body)
-        binding.pry
       end
 
       it { expect(@user.exists?).to eq true }
@@ -28,6 +27,7 @@ Rails.describe Api::V1::UsersController, type: :request do
         post '/api/v1/users', params: { user: @invalid_attributes }
         @user = User.where(email: @invalid_attributes[:email])
         @response_body = JSON.parse(response.body)
+        binding.pry
       end
 
       it { expect(@user.exists?).to eq false }

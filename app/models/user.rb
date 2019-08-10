@@ -33,6 +33,16 @@ class User < ApplicationRecord
     create_account
   end
 
+  def self.authenticate(email:, password: )
+    user_obj = where(email: email).first
+
+    if user_obj
+      user_obj = nil unless user_obj.valid_password?(password)
+    end
+
+    user_obj
+  end
+
   def admin?
     role == 'admin'
   end

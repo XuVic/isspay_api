@@ -1,9 +1,8 @@
 module Api::V1::User
   module Registration
-
-
     def create
-      result = SignUpForm.new(sign_up_resource).submit
+      result = UserForm.new(sign_up_resource, context: :sign_up).submit
+      response.set_header('Set-Cookie', '123')
       render result
     end
 

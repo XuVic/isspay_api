@@ -13,8 +13,8 @@ Rails.application.routes.draw do
 
       resources :users, only: %i[index create update] do
         collection do
-          post 'sign_in', to: 'users#sign_in'
-          delete 'sign_out', to: 'users#sign_out'
+          post 'auth', to: 'users#auth'
+          get 'test', to: 'users#test'
         end
       end
 
