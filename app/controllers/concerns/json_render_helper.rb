@@ -14,6 +14,7 @@ module JsonRenderHelper
     when :resource
       render_resource_json(obj)
     when :message
+      response.status = options[:status] ? options[:status] : 200
       set_response_body(obj)
     else
     end

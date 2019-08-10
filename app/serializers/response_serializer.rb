@@ -27,7 +27,7 @@ class ResponseSerializer
     serializable_hash[:type] = options[:serializer_type].to_s
     case options[:serializer_type]
     when :resource
-      serializable_hash[:data] = data_hash
+      serializable_hash[:resource] = data_hash
     when :error
       serializable_hash[:error] = error_hash
     when :message
