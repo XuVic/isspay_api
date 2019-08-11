@@ -9,6 +9,7 @@ module Abilities
 
       if user.admin?
         can :modify, resource
+        can :create, resource
       end
     end
   

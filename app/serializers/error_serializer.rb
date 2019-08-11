@@ -12,6 +12,6 @@ class ErrorSerializer
   def error_messages
     return errors if errors.is_a?(Array) || errors.is_a?(String)
 
-    @errors.full_messages
+    @errors.full_messages.uniq
   end
 end

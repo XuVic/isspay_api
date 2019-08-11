@@ -42,15 +42,13 @@ class Api::V1::BaseController < ApplicationController
     standard, token = authorization_str.split(' ')
 
     standard == 'Bearer' ? token : nil
-  rescue => error
-    
   end
 
-  def render_form_result(form_result)
+  def render_form_result(form_result, options = {})
     if error?(form_result)
-      render_json form_result, type: :error
+      render_json form_result, options.merge({type: :error})
     elsif resource?(form_result)
-      render_json form_result, type: :resource
+      render_json form_result, options.merge({type: :resource})
     end
   end
 

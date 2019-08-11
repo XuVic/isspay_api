@@ -1,17 +1,31 @@
 class BaseForm
   include ActiveModel::Validations
-  attr_reader :resource, :options
+  include ActiveSupport::Configurable
 
-  def initialize(resource, options = {})
+  attr_reader :resource, :options
+  
+  class << self
+    def in_create(resource, options)
+      options.merge!(context: :create)
+      new(resource, options)
+    end
+  
+    def in_update(resource, options)
+      options.merge!(context: :update)
+      new(resource, options)
+    end
+  end
+
+  def initialize(resource, options)
     @resource = resource
     @options = options
   end
 
   def submit
     if valid?
-      if context == :update
+      if update?
         resource.update(attributes)
-      else
+      elsif create?
         resource.save!
       end
 
@@ -22,10 +36,10 @@ class BaseForm
   end
 
   def target_resource
-    if context == :update
+    if update?
       model_name = @resource.model_name.to_s
       model_name.constantize.new(attributes)
-    elsif context == :default
+    elsif create?
       resource 
     end
   end
@@ -35,8 +49,14 @@ class BaseForm
   end
 
   def context
-    return :default unless options[:context]
-
     options[:context]
+  end
+
+  def create?
+    context == :create
+  end
+
+  def update?
+    context == :update
   end
 end

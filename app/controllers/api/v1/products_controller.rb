@@ -1,8 +1,17 @@
 class Api::V1::ProductsController < Api::V1::BaseController
   before_action :find_product, only: %i[destroy update]
+  before_action :sanitize_product_params, only: %i[create update]
 
   def create
+    authorize! :create, Product, message: "You don't have right to build the product."
+    create_form = ProductForm.in_create(product_resource)
+    result = create_form.submit
     
+    if error?(result)
+      render_json result, type: :error
+    else
+      render_json result, { type: :resource, status: 201 }
+    end
   end
 
   def index
@@ -17,7 +26,7 @@ class Api::V1::ProductsController < Api::V1::BaseController
 
   def update
     authorize! :update, @targeted_product, message: "You don't have right to modify the product."
-    update_form = ProductForm.new(@targeted_product, { attributes: product_params, context: :update })
+    update_form = ProductForm.in_update(@targeted_product, attributes: product_params)
     result = update_form.submit
 
     render_form_result result
@@ -37,8 +46,17 @@ class Api::V1::ProductsController < Api::V1::BaseController
 
   private
 
+  def sanitize_product_params
+    product_params[:price] = product_params[:price].to_f if product_params[:price]
+    product_params[:quantity] = product_params[:quantity].to_i if product_params[:quantity]
+  end
+
   def product_params
     params.require(:product).permit(:name, :price, :quantity, :image_url, :category_id)
+  end
+
+  def product_resource
+    Product.new(product_params)
   end
 
   def product_id

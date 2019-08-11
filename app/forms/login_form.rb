@@ -1,6 +1,14 @@
 class LoginForm < BaseForm
   delegate :email, :password, to: :target_resource 
 
+  def initialize(resource)
+    @resource = resource
+  end
+
+  def target_resource
+    @resource
+  end
+
   def valid?
     errors.add(:base, :credentials_invalid, message: "Credentials is not valid.") if credential_invalid?
     errors.full_messages.empty?

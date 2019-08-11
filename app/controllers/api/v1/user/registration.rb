@@ -1,7 +1,7 @@
 module Api::V1::User
   module Registration
     def create
-      result = UserForm.new(sign_up_resource, context: :sign_up).submit
+      result = UserForm.in_create(sign_up_resource).submit
       if error?(result)
         render_json result, type: :error
       elsif resource?(result)

@@ -67,8 +67,15 @@ Rails.describe Api::V1::ProductsController, type: :request do
   describe '#create' do
     context 'login as admin' do
       before :all do
-        
+        @pre_products_size = Product.all.size
+        product_attributes = build(:product, :snack).attributes
+        product_attributes[:category_id] = Category.first.id
+        post '/api/v1/products', headers: { Authorization: "Bearer #{@admin_token}" },
+                                 params: { product: product_attributes }
       end
+
+      it { expect(response.status).to eq 201 }
+      it { expect(Product.all.size).to eq (@pre_products_size + 1) }
     end
   end
 end
