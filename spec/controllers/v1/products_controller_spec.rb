@@ -60,6 +60,15 @@ Rails.describe Api::V1::ProductsController, type: :request do
 
       it { expect(response.status).to eq 200 }
       it { expect(Product.find(@product_id).name).to eq "#{@org_name}_modified" }
+      it { expect(Product.find(@product_id).price).to eq @product.price }
+    end
+  end
+
+  describe '#create' do
+    context 'login as admin' do
+      before :all do
+        
+      end
     end
   end
 end

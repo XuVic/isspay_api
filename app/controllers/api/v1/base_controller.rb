@@ -48,9 +48,9 @@ class Api::V1::BaseController < ApplicationController
 
   def render_form_result(form_result)
     if error?(form_result)
-      render_json result, type: :error
+      render_json form_result, type: :error
     elsif resource?(form_result)
-      render_json result, type: :resource
+      render_json form_result, type: :resource
     end
   end
 
