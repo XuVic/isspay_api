@@ -46,6 +46,14 @@ class Api::V1::BaseController < ApplicationController
     
   end
 
+  def render_form_result(form_result)
+    if error?(form_result)
+      render_json result, type: :error
+    elsif resource?(form_result)
+      render_json result, type: :resource
+    end
+  end
+
   def error?(obj)
     obj.is_a?(ActiveModel::Errors)
   end

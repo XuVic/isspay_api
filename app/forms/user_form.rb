@@ -1,7 +1,7 @@
 class UserForm < BaseForm
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
   
-  delegate :email, :password, :password_confirmation, :role, :gender, :first_name, :last_name, to: :resource 
+  delegate :email, :password, :password_confirmation, :role, :gender, :first_name, :last_name, to: :target_resource 
 
   validates :email, presence: true, uniqueness: true, format: VALID_EMAIL_REGEX
   validates :password, presence: true, confirmation: true, if: :sign_up?

@@ -47,4 +47,19 @@ Rails.describe Api::V1::ProductsController, type: :request do
       it { expect(Product.find(@product_id)).not_to be nil }
     end
   end
+
+  describe '#update' do
+    context 'login as admin' do
+      before :all do
+        @product = Product.all.first
+        @org_name = @product.name
+        @product_id = @product.id
+        put "/api/v1/products/#{@product_id}", headers: { Authorization: "Bearer #{@admin_token}" }, 
+                               params: { product: { name: "#{@product.name}_modified" } }
+      end
+
+      it { expect(response.status).to eq 200 }
+      it { expect(Product.find(@product_id).name).to eq "#{@org_name}_modified" }
+    end
+  end
 end
