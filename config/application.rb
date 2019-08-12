@@ -34,6 +34,8 @@ module IsspayApi
     config.autoload_paths << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('lib')
 
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.raise_delivery_errors = false
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.2
 

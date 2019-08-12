@@ -1,6 +1,17 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+    
+  config.action_mailer.smtp_settings = {
+    address: 'smtp.sendgrid.net',
+    port: 587,
+    domain: 'localhost.localdomain',
+    user_name: Rails.application.credentials[Rails.env.to_sym][':sendgrid_username'],
+    password: Rails.application.credentials[Rails.env.to_sym][':sendgrid_password'],
+    authentication: :login,
+    enable_ssl: true
+  }
+  
   # Code is not reloaded between requests.
   config.cache_classes = true
 

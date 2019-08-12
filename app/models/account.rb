@@ -35,6 +35,7 @@ class Account < ApplicationRecord
       purchased_products(products)
       self.debit += cost
       save
+      t
     end
   end
 

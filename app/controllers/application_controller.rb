@@ -6,4 +6,10 @@ class ApplicationController < ActionController::Metal
   include ActionController::Rescue
   include CanCan::ControllerAdditions
   include JsonRenderHelper
+
+  prepend_before_action :sanitize_params, only: %i(create update)
+
+  def sanitize_params
+    
+  end
 end

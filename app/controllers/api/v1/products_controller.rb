@@ -46,7 +46,7 @@ class Api::V1::ProductsController < Api::V1::BaseController
 
   private
 
-  def sanitize_product_params
+  def sanitize_params
     product_params[:price] = product_params[:price].to_f if product_params[:price]
     product_params[:quantity] = product_params[:quantity].to_i if product_params[:quantity]
   end

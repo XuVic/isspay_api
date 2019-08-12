@@ -19,7 +19,7 @@ module Api::V1::User
       build_resource(sign_up_params)
     end
 
-    def sanitize_sign_up_params
+    def sanitize_params
       params[:user][:gender] = params[:user][:gender].to_i
       params[:user][:role] = params[:user][:role].to_i
     end

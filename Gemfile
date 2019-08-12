@@ -56,6 +56,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.8'
   gem 'rails-controller-testing', '~> 1.0', '>= 1.0.4'
   gem 'database_cleaner', '~> 1.7'
+  gem 'mailcatcher'
 end
 
 group :development do

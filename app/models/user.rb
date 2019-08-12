@@ -24,13 +24,19 @@ class User < ApplicationRecord
 
   has_one :account, foreign_key: 'owner_id', dependent: :destroy
 
+  accepts_nested_attributes_for :account
+
   enum gender: %i[male female]
   enum role: %i[master phd prof staff alumni admin]
 
-  delegate :credit, :debit, :balance, to: :account
+  delegate :credit, :debit, :balance, :order, :transfer, :transactions, to: :account
 
   after_create do
     create_account
+  end
+
+  def credit=(amount)
+    self.account.credit = amount
   end
 
   def self.authenticate(email:, password: )
