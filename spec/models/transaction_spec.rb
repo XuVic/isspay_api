@@ -19,6 +19,32 @@ RSpec.describe Transaction, type: :model do
   #   binding.pry
   # end
 
+  describe 'CallBacks:' do
+    before :all do
+      @user = create(:user)
+      @user.credit = 100
+      @user.save
+      @product = create(:product, :snack, price: 100)
+      @transaction = @user.order([@product])
+    end
+    context 'before_destroy' do
+      before :all do
+        @transaction.destroy
+      end
+
+      it 'also rollbacks account data' do
+        expect(User.find(@user.id).balance).to eq 100
+        expect(Product.find(@product.id).quantity).to eq @product.quantity + 1
+      end
+
+      it { expect(PurchasedProduct.all).to be_empty }
+
+      it do
+        expect{ Transaction.find(@transaction.id) }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+  end
+
   describe 'Referential Integrity:' do
     context 'when transaction is created as purchase' do
       it 'has many products' do

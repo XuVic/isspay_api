@@ -6,11 +6,13 @@ module Api::Chatfuel
       end
 
       message = ChatfuelJson::Response.new(resources: products, messenger_id: messenger_id)
+      
       if products.empty? 
-        message.body_to(:out_of_stock, category)
+        message.body_to(:out_of_stock)
       else
         message.body_to(:products_gallery)
       end
+
       render_json message
     end
 

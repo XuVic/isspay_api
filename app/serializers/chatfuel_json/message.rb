@@ -18,7 +18,7 @@ module ChatfuelJson
       [ message ]
     end
 
-    def out_of_stock(category)
+    def out_of_stock
       text = "抱歉，沒有庫存了"
       replies = [ quick_reply('通知管理員') ]
 

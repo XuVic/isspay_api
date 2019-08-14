@@ -5,12 +5,13 @@ module Api::Chatfuel
       result = transaction_form.submit
       if resource?(result)
         message = ChatfuelJson::Response.new(resources: [result], messenger_id: messenger_id)
-        message.body_to(:receipt_reply)
+        message.body_to(:receipt_reply, )
         render_json message
       end
     end
 
     def destroy
+      
     end
 
     private

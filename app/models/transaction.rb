@@ -19,6 +19,16 @@ class Transaction < ApplicationRecord
 
   enum genre: %i[purchase transfer]
 
+  delegate :owner, to: :account
+
+  before_destroy do
+    if type == 'transfer'
+      destroy_transfer
+    elsif type == 'purchase'
+      destroy_purchase
+    end
+  end
+
   def product_names
     products.map(&:name)
   end
@@ -29,5 +39,30 @@ class Transaction < ApplicationRecord
     elsif genre == 'transfer'
       transfer_detail.amount
     end
+  end
+
+  def type
+    if receiver
+      'transfer'
+    elsif products
+      'purchase'
+    end
+  end
+
+  private
+
+  def destroy_purchase
+    PurchasedProduct.where(transaction_id: self.id).all.each do |purchased|
+      product = purchased.product
+      product.quantity += 1
+      product.save
+    end
+    account = self.account
+    account.debit -= self.amount
+    account.save
+    self.products.delete_all
+  end
+  
+  def destroy_transfer
   end
 end

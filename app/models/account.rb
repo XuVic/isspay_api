@@ -28,7 +28,7 @@ class Account < ApplicationRecord
     cost = products.reduce(0) { |c, p| c + p.price }
     raise TransactionInvalid if (cost > balance && !options[:allowed]) || !products_available?(products)
 
-    ActiveRecord::Base.transaction do
+    self.class.transaction do
       t = Transaction.create(account: self, genre: 'purchase')
       t.products = products
       t.save
@@ -42,7 +42,7 @@ class Account < ApplicationRecord
   def transfer(receiver, amount)
     raise TransactionInvalid if amount > balance
 
-    ActiveRecord::Base.transaction do
+    self.class.transaction do
       transaction = Transaction.create(account: self, genre: 'transfer')
       TransferDetail.create(receiver: receiver, amount: amount, transfer: transaction)
       receiver.credit += amount
@@ -64,7 +64,7 @@ class Account < ApplicationRecord
   end
 
   def purchased_products(products)
-    ActiveRecord::Base.transaction do
+    self.class.transaction do
       products_hash(products).each do |k, v|
         product = products_hash[k][0]
         product.quantity -= v.count
