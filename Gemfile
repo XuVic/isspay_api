@@ -45,6 +45,8 @@ gem 'rbnacl-libsodium', '~> 1.0', '>= 1.0.16'
 gem 'rbnacl', '~> 5.0'
 # Authorization & Permission
 gem 'cancancan', '~> 3.0', '>= 3.0.1'
+# Background worker
+gem 'sidekiq', '~> 5.2', '>= 5.2.7'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

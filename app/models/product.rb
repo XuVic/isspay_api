@@ -16,6 +16,13 @@ class Product < ApplicationRecord
   belongs_to :category
   has_many :purchased_products
   has_many :orders, through: :purchased_products
+  
+  def self.find_by_category(category_name)
+    return Product.all unless category_name
+
+    category_id = Category.where(name: category_name).first!
+    Product.where(category_id: category_id).all
+  end
 
   def available?
     quantity.positive?

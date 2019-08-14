@@ -7,13 +7,14 @@ class TransactionForm < BaseForm
   end
 
   def valid?
-    errors.add(:base, :insufficient_balance, message: "Insufficient Balance.") if insufficient_balance?
+    # errors.add(:base, :insufficient_balance, message: "Insufficient Balance.") if insufficient_balance?
+    errors.add(:base, :insufficient_inventory, message: 'Insufficient Inventory') if insufficient_inventory?
     errors.full_messages.empty?
   end
 
   def submit
     if valid?
-      user.order(products)
+      @user.order(products, allowed: true)
     else
       errors
     end
@@ -21,6 +22,16 @@ class TransactionForm < BaseForm
 
   def insufficient_balance?
     user.balance < total_cost
+  end
+
+  def insufficient_inventory?
+    result = false
+    
+    @products.each do |product|
+      result = true unless product.available?
+    end
+
+    result
   end
 
   def total_cost

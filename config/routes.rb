@@ -26,6 +26,8 @@ Rails.application.routes.draw do
     namespace :chatfuel do
       get 'create_transaction', to: 'transactions#create'
       get 'delete_transaction', to: 'transactions#destroy'
+
+      resources :products, only: %i[index]
     end
   end
 end

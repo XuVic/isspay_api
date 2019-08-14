@@ -19,6 +19,10 @@ class Transaction < ApplicationRecord
 
   enum genre: %i[purchase transfer]
 
+  def product_names
+    products.map(&:name)
+  end
+
   def amount
     if genre == 'purchase'
       products.reduce(0) { |s, p| s + p.price }

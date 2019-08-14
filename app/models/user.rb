@@ -35,8 +35,8 @@ class User < ApplicationRecord
     create_account
   end
 
-  def credit=(amount)
-    self.account.credit = amount
+  def self.find_by_messenger_id(messenger_id)
+    where(messenger_id: messenger_id).first!
   end
 
   def self.authenticate(email:, password: )
@@ -47,6 +47,10 @@ class User < ApplicationRecord
     end
 
     user_obj
+  end
+
+  def credit=(amount)
+    self.account.credit = amount
   end
 
   def admin?

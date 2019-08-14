@@ -3,6 +3,8 @@ default: &default
 
 development:
   <<: *default
+  API_URL: 'https://7017e807.ngrok.io'
 
 test:
   <<: *default
+  API_URL: 'https://localhost'

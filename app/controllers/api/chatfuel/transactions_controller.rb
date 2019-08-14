@@ -3,21 +3,17 @@ module Api::Chatfuel
     def create
       transaction_form = TransactionForm.new(current_user, purchased_products)
       result = transaction_form.submit
-      binding.pry
+      if resource?(result)
+        message = ChatfuelJson::Response.new(resources: [result])
+        message.body_to(:receipt_reply)
+        render_json message
+      end
     end
 
     def destroy
     end
 
     private
-
-    def messenger_id
-      params.require(:user).permit(:messenger_id)['messenger_id']
-    end
-
-    def current_user
-      User.where(messenger_id: messenger_id).first!
-    end
 
     def purchased_products_params
       params.permit(products: [:id, :quantity])

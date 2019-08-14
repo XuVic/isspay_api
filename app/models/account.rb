@@ -24,9 +24,9 @@ class Account < ApplicationRecord
     credit - debit
   end
 
-  def order(products)
+  def order(products, options = {})
     cost = products.reduce(0) { |c, p| c + p.price }
-    raise TransactionInvalid if cost > balance || !products_available?(products)
+    raise TransactionInvalid if (cost > balance && !options[:allowed]) || !products_available?(products)
 
     ActiveRecord::Base.transaction do
       t = Transaction.create(account: self, genre: 'purchase')
