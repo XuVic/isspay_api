@@ -11,8 +11,8 @@ RSpec.describe 'Routes for Chatfuel scope', type: :routing do
 
     context 'delete a transaction' do
       it do
-        expect(get('/api/chatfuel/delete_transaction'))
-          .to route_to(controller: 'api/chatfuel/transactions', action: 'destroy')
+        expect(get('/api/chatfuel/delete_transaction/1'))
+          .to route_to(controller: 'api/chatfuel/transactions', action: 'destroy', id: '1')
       end
     end
   end
