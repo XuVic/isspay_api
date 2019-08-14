@@ -19,8 +19,12 @@ module ChatfuelJson
       }.to_json
     end
 
-    def body_to(method)
-      @body = self.send(method)
+    def body_to(method, *params)
+      if params.empty?
+        @body = self.send(method)
+      else
+        @body = self.send(method, params)
+      end
     end
   end
 end

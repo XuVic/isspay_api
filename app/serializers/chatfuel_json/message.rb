@@ -13,8 +13,24 @@ module ChatfuelJson
       replies << quick_reply('還要吃', url: products_url('snack'))
       replies << quick_reply('還要喝', url: products_url('drink'))
       replies << quick_reply('取消購買', url: 'test')
+
       message = { text: text, quick_replies: replies }
       [ message ]
+    end
+
+    def out_of_stock(category)
+      text = "抱歉，沒有庫存了"
+      replies = [ quick_reply('通知管理員') ]
+
+      message = { text: text, quick_replies: replies }
+      [ message ]
+    end
+
+    private
+
+    def products_url(category)
+      query_string = "product[category]=#{category}&user[messenger_id]=#{messenger_id}"
+      "#{IsspayApi.config.API_URL}/api/chatfuel/products?#{query_string}"
     end
 
     def quick_reply(title, options = {})
@@ -24,13 +40,6 @@ module ChatfuelJson
       reply.merge!(url: options[:url]) if options[:url]
       reply.merge!(type: type) if options[:url]
       reply
-    end
-
-    private
-
-    def products_url(category)
-      query_string = "product[category]=#{category}&user[messenger_id]=#{messenger_id}"
-      "#{IsspayApi.config.API_URL}/api/chatfuel/products?#{query_string}"
     end
   end
 end
