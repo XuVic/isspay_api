@@ -24,5 +24,14 @@ Rails.describe Api::Chatfuel::TransactionsController, type: :request do
   end
 
   describe '#destroy' do
+    before :all do
+      @user = User.find_by_messenger_id(@messenger_id)
+      @transaction = @user.order([@product], allowed: true)
+      get "/api/chatfuel/delete_transaction/#{@transaction.id}?user[messenger_id]=#{@messenger_id}"
+    end
+
+    it { expect(response.status).to eq 200 }
+    it { expect(User.find(@user.id).balance).to eq @transaction.amount + @user.balance }
+    it { expect(response.body).to include "#{User.find(@user.id).balance.abs}" }
   end
 end

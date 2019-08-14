@@ -1,6 +1,6 @@
 module ChatfuelJson
   module Message
-    def texting
+    def text
       messages.map do |msg|
         { text: msg }
       end
