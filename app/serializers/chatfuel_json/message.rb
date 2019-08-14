@@ -10,8 +10,8 @@ module ChatfuelJson
       text = "成功購買 #{resources[0].product_names.join(';')}，" \
             "總金額為 #{resources[0].amount} "
       replies = []
-      replies << quick_reply('還要買', url: 'test')
-      replies << quick_reply('還要買', url: 'test')
+      replies << quick_reply('還要吃', url: products_url('snack'))
+      replies << quick_reply('還要喝', url: products_url('drink'))
       replies << quick_reply('取消購買', url: 'test')
       message = { text: text, quick_replies: replies }
       [ message ]
@@ -24,6 +24,13 @@ module ChatfuelJson
       reply.merge!(url: options[:url]) if options[:url]
       reply.merge!(type: type) if options[:url]
       reply
+    end
+
+    private
+
+    def products_url(category)
+      query_string = "product[category]=#{category}&user[messenger_id]=#{messenger_id}"
+      "#{IsspayApi.config.API_URL}/api/chatfuel/products?#{query_string}"
     end
   end
 end
