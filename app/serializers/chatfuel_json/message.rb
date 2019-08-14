@@ -6,13 +6,13 @@ module ChatfuelJson
       end
     end
 
-    def receipt_reply
+    def receipt_reply(transaction)
       text = "成功購買 #{resources[0].product_names.join(';')}，" \
             "總金額為 #{resources[0].amount} "
       replies = []
       replies << quick_reply('還要吃', url: products_url('snack'))
       replies << quick_reply('還要喝', url: products_url('drink'))
-      replies << quick_reply('取消購買', url: 'test')
+      replies << quick_reply('取消購買', url: destroy_transaction_url(transaction[0]))
 
       message = { text: text, quick_replies: replies }
       [ message ]
@@ -27,11 +27,6 @@ module ChatfuelJson
     end
 
     private
-
-    def products_url(category)
-      query_string = "product[category]=#{category}&user[messenger_id]=#{messenger_id}"
-      "#{IsspayApi.config.API_URL}/api/chatfuel/products?#{query_string}"
-    end
 
     def quick_reply(title, options = {})
       type = options[:type] || 'json_plugin_url'

@@ -1,5 +1,6 @@
 module ChatfuelJson
   class Response
+    include UrlHelper
     include Attachment
     include Message
 
