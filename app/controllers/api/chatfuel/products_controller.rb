@@ -1,5 +1,7 @@
 module Api::Chatfuel
   class ProductsController < BaseController
+    prepend_before_action :sanitize_params, only: :index
+
     def index
       products.each do |product|
         authorize! :index, product
@@ -20,11 +22,11 @@ module Api::Chatfuel
     private
 
     def out_of_range
-      page >= (Product.count / 8.0).ceil
+      page >= (Product.count / 9.0).ceil
     end
 
     def products
-      Product.find_by_category(category).paginate(page, 8).all
+      Product.find_by_category(category).paginate(page, 9).all
     end
 
     def product_params

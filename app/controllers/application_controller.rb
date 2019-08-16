@@ -7,8 +7,6 @@ class ApplicationController < ActionController::Metal
   include CanCan::ControllerAdditions
   include JsonRenderHelper
 
-  prepend_before_action :sanitize_params
-
   def sanitize_params
     
   end

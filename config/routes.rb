@@ -27,6 +27,9 @@ Rails.application.routes.draw do
       get 'create_transaction', to: 'transactions#create'
       get 'delete_transaction/:id', to: 'transactions#destroy'
 
+      get 'accounts/:messenger_id', to: 'accounts#show'
+      get 'repayment', to: 'accounts#repay'
+
       resources :products, only: %i[index]
     end
   end

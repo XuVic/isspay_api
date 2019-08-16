@@ -1,10 +1,13 @@
 module Api::Chatfuel
   class TransactionsController < BaseController
+    prepend_before_action :sanitize_params, only: :create
     before_action :find_transaction, only: %i(destroy)
+
 
     def create
       transaction_form = TransactionForm.new(current_user, purchased_products)
       result = transaction_form.submit
+      
       if resource?(result)
         message = ChatfuelJson::Response.new(resources: [result], messenger_id: messenger_id)
         message.body_to(:receipt_reply, result)
@@ -17,6 +20,7 @@ module Api::Chatfuel
 
       message = "取消購買 #{@transaction.product_names.join(';')} " \
                 "退回 #{@transaction.amount}，目前餘額 #{current_user.balance}" 
+      
       @transaction.destroy!
 
       message = ChatfuelJson::Response.new(messages: [message])

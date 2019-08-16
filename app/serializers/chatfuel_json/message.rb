@@ -26,7 +26,31 @@ module ChatfuelJson
       [ message ]
     end
 
+    def check_account(fields)
+      messages = []
+      messages.concat consumption_message if fields.include('consumption')
+      messages.concat balance_message if fields.include('balance')
+      messages
+    end
+
     private
+
+    def balance_message
+      [
+        { text: "您的收入:"},
+        { text: "您的支出：" },
+        { text: "您的餘額為：", 
+          quick_replies: quick_replies('我要還款', url: repayment_url)
+        }
+      ]
+    end
+
+    def consumption_message
+      records = @resources[0].consumption(3)
+      records.map do |record|
+        { text: "#{record[:month]}，共購買了#{record[:products]}產品，總花費#{record[:amount]}" }
+      end
+    end
 
     def quick_reply(title, options = {})
       type = options[:type] || 'json_plugin_url'

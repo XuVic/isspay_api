@@ -14,5 +14,9 @@ module ChatfuelJson
       "#{IsspayApi.config.API_URL}/api/chatfuel/create_transaction?" + 
       "user[messenger_id]=#{messenger_id}&products[][id]=#{product.id}&products[][quantity]=1"
     end
+
+    def repayment_url
+      "#{IsspayApi.config.API_URL}/api/chatfuel/repayment/#{messenger_id}"
+    end
   end
 end

@@ -52,6 +52,19 @@ class Account < ApplicationRecord
     end
   end
 
+  def consumption(months)
+    now = Time.now
+    Array(0..months).inject([]) do |result, month|
+      new_time = TimeDecorator.new(Time.now).ago(month * 30)
+      selected_orders = orders.select { |o| new_time.between?(o.created_at) }
+      result << {
+        date: new_time.strftime('%Y/%m'),
+        products: selected_orders.reduce(0) { |sum, o| sum += o.products.size },
+        cost: selected_orders.reduce(0) { |sum, o| sum += o.amount }
+      }
+    end
+  end
+
   private
 
   def products_available?(products)

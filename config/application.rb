@@ -29,8 +29,8 @@ module IsspayApi
 
     config.session_store :cache_store, key: IsspayApi.config.APP_SESSION_KEY
 
-    config.autoload_paths += %W(#{config.root}/app/serializers #{config.root}/app/forms #{config.root}/app/validators)
-    config.eager_load_paths += %W(#{config.root}/app/serializers #{config.root}/app/forms #{config.root}/app/validators)
+    config.autoload_paths += %W(#{config.root}/app/serializers #{config.root}/app/forms #{config.root}/app/validators #{config.root}/app/decorators)
+    config.eager_load_paths += %W(#{config.root}/app/serializers #{config.root}/app/forms #{config.root}/app/validators #{config.root}/app/decorators)
     config.autoload_paths << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('lib')
 

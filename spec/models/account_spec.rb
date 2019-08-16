@@ -15,14 +15,15 @@ require 'rails_helper'
 RSpec.describe Account, type: :model do
   let(:account) { create(:account) }
   let(:receiver) { create(:account) }
+  let(:products) do
+    10.times.map { create(:product, :snack, price: 100) } 
+  end
 
   # it 'debugging' do
   #   binding.pry
   # end
 
   describe '#order' do
-    let(:products) { 10.times.map { create(:product, :snack, price: 100) } }
-
     context 'not enough money' do
       it { expect { account.order(products) }.to raise_error(Account::TransactionInvalid) }
     end
@@ -43,7 +44,7 @@ RSpec.describe Account, type: :model do
         cost = products[0..1].reduce(0) { |c, p| c + p.price }
         account.order(products[0..1])
         expect(products[0].quantity).to eq(pre_quantity - 1)
-        expect(account.orders[0].products).to eq(products[0..1])
+        expect(account.orders[0].products.sort).to eq(products[0..1].sort)
         expect(account.balance).to eq(pre_balance - cost)
       end
     end
@@ -64,6 +65,16 @@ RSpec.describe Account, type: :model do
         expect(account.transfers[0].receiver).to eq(receiver)
         expect(account.balance).to eq(pre_balance - 20)
       end
+    end
+  end
+
+  describe "#consumption" do
+    it 'create a consumption hash' do
+      account.order(products, allowed: true)
+      cost = products.reduce(0) { |c, p| c + p.price }
+      expect(account.consumption(2).size).to eq 3
+      expect(account.consumption(2)[0].keys.sort).to eq [:date, :products, :cost].sort
+      expect(account.consumption(0)[0][:cost]).to eq cost
     end
   end
 end

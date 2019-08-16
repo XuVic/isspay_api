@@ -12,10 +12,10 @@ module ChatfuelJson
       
       if page[0]
         product_elements << {
-          title: '下八個產品',
+          title: "目前在第 #{page[0] - 1} 頁",
           image_url: 'https://i.imgur.com/T0TMWEr.png',
-          subtitle: "總共有 #{Product.count} 個產品",
-          button: [button('json_plugin_url', '下一頁', products_url(resources[0].category_name, page[0]))]
+          subtitle: "總共 #{Product.count} 個產品; #{(Product.count / 9.0).ceil} 頁",
+          buttons: [button('json_plugin_url', '下一頁', products_url(resources[0].category_name, page[0]))]
         }
       end
 
@@ -23,6 +23,7 @@ module ChatfuelJson
       [ to_attachments(payload_content) ]
     end
 
+    def co
 
     private
 
