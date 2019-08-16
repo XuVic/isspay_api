@@ -1,6 +1,6 @@
 module ChatfuelJson
   module Attachment
-    def products_gallery(page)
+    def products_gallery(page = nil)
       product_elements = resources.map do |resource|
         {
           title: resource.name,
@@ -10,20 +10,18 @@ module ChatfuelJson
         }
       end
       
-      if page[0]
+      if page
         product_elements << {
-          title: "目前在第 #{page[0] - 1} 頁",
+          title: "目前在第 #{page - 1} 頁",
           image_url: 'https://i.imgur.com/T0TMWEr.png',
           subtitle: "總共 #{Product.count} 個產品; #{(Product.count / 9.0).ceil} 頁",
-          buttons: [button('json_plugin_url', '下一頁', products_url(resources[0].category_name, page[0]))]
+          buttons: [button('json_plugin_url', '下一頁', products_url(resources[0].category_name, page))]
         }
       end
 
       payload_content = payload(product_elements, 'gallery')
       [ to_attachments(payload_content) ]
     end
-
-    def co
 
     private
 

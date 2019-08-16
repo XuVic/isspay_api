@@ -2,7 +2,10 @@ module Api::Chatfuel
   class AccountsController < BaseController
     def show
       authorize! :show, current_account
-      binding.pry
+      message = ChatfuelJson::Response.new(resources: [current_account], messenger_id: messenger_id)
+      message.body_to(:check_account, fields)
+
+      render_json message
     end
 
     def repay
