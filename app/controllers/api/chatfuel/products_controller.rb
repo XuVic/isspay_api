@@ -19,7 +19,7 @@ module Api::Chatfuel
     private
 
     def products
-      Product.find_by_category(category)
+      Product.find_by_category(category).all
     end
 
     def product_params

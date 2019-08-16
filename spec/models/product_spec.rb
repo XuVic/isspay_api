@@ -18,9 +18,6 @@ RSpec.describe Product, type: :model do
   let(:snack) { create(:product, :snack) }
   subject(:record_invalid) { ActiveRecord::RecordInvalid }
   subject(:not_null) { ActiveRecord::NotNullViolation }
-  # it 'debugging' do
-  #   binding.pry
-  # end
 
   describe 'Referential Integrity:' do
     context 'foreign key constraint' do
@@ -62,5 +59,16 @@ RSpec.describe Product, type: :model do
     context 'when quantity is a string' do
       it { expect(create(:product, :snack, quantity: 'abc').quantity).to eq(0.0) }
     end
+  end
+
+  describe '#paginate' do
+    before :all do
+      15.times { create(:product, :snack) }
+    end
+
+    it { expect(Product.paginate(1, 5).size).to eq 5 }
+    it { expect(Product.paginate(2, 5)[0].id).not_to eq Product.paginate(1, 5)[0].id  }
+    it { expect(Product.paginate(1, 5)[2].id).to eq Product.paginate(2, 2)[0].id }
+    it { expect(Product.find_by_category('snack').paginate(1, 5)[0].category_name).to eq 'snack' }
   end
 end

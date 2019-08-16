@@ -21,10 +21,19 @@ class Product < ApplicationRecord
     return Product.all unless category_name
 
     category_id = Category.where(name: category_name).first!
-    Product.where(category_id: category_id).all
+    Product.where(category_id: category_id)
+  end
+
+  def self.paginate(page, size)
+    skips = (page - 1) * size
+    Product.offset(skips).limit(size)
   end
 
   def available?
     quantity.positive?
+  end
+
+  def category_name
+    category.name
   end
 end
