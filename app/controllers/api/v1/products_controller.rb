@@ -1,6 +1,6 @@
 class Api::V1::ProductsController < Api::V1::BaseController
   before_action :find_product, only: %i[destroy update]
-  before_action :sanitize_product_params, only: %i[create update]
+  before_action :sanitize_params, only: %i[create update]
 
   def create
     authorize! :create, Product, message: "You don't have right to build the product."

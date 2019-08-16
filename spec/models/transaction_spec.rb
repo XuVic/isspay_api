@@ -15,9 +15,6 @@ require 'rails_helper'
 RSpec.describe Transaction, type: :model do
   let(:purchase) { create(:transaction, :purchase) }
   let(:transfer) { create(:transaction, :transfer) }
-  # it 'debugging' do
-  #   binding.pry
-  # end
 
   describe 'CallBacks:' do
     before :all do
@@ -27,6 +24,7 @@ RSpec.describe Transaction, type: :model do
       @product = create(:product, :snack, price: 100)
       @transaction = @user.order([@product])
     end
+
     context 'before_destroy' do
       before :all do
         @transaction.destroy
@@ -37,7 +35,7 @@ RSpec.describe Transaction, type: :model do
         expect(Product.find(@product.id).quantity).to eq @product.quantity + 1
       end
 
-      it { expect(PurchasedProduct.all).to be_empty }
+      it { expect(PurchasedProduct.where(transaction_id: @transaction.id)).to be_empty }
 
       it do
         expect{ Transaction.find(@transaction.id) }.to raise_error(ActiveRecord::RecordNotFound)

@@ -2,6 +2,7 @@ require 'rails_helper'
 
 Rails.describe Api::V1::ProductsController, type: :request do
   before :all do
+    @prev_products = Product.all.size
     3.times { create(:product, :snack) }
     2.times { create(:product, :drink) }
     @user = create(:user)
@@ -17,9 +18,10 @@ Rails.describe Api::V1::ProductsController, type: :request do
       before :all do
         get '/api/v1/products', headers: { Authorization: "Bearer #{@token}" }
         @response_body = JSON.parse(response.body)
+        
       end
 
-      it { expect(@response_body['resource'].size).to eq(5) }
+      it { expect(@response_body['resource'].size).to eq(@prev_products + 5) }
     end
   end
 
