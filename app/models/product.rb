@@ -25,7 +25,8 @@ class Product < ApplicationRecord
   end
 
   def self.paginate(page, size)
-    skips = (page - 1) * size
+    skips = page < 1 ? 1 : (page - 1) * size
+    
     Product.offset(skips).limit(size)
   end
 

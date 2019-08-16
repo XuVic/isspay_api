@@ -3,4 +3,8 @@ class ApplicationRecord < ActiveRecord::Base
   include CanCan::ModelAdditions
   
   self.abstract_class = true
+
+  def self.count
+    self.all.size
+  end
 end

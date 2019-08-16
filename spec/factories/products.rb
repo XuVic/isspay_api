@@ -20,11 +20,13 @@ FactoryBot.define do
     image_url { 'https://i.imgur.com/eYl9RO4.png' }
 
     trait :snack do
-      association :category, factory: :category, name: 'snack'
+      category = Category.find_or_create_by(name: 'snack')
+      category_id { category.id }
     end
 
     trait :drink do
-      association :category, factory: :category, name: 'drink'
+      category = Category.find_or_create_by(name: 'drink')
+      category_id { category.id }
     end
   end
 end

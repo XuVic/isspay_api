@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Metal
   include CanCan::ControllerAdditions
   include JsonRenderHelper
 
-  prepend_before_action :sanitize_params, only: %i(create update)
+  prepend_before_action :sanitize_params
 
   def sanitize_params
     

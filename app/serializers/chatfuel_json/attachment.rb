@@ -1,8 +1,7 @@
 module ChatfuelJson
   module Attachment
-    def products_gallery
+    def products_gallery(page)
       product_elements = resources.map do |resource|
-        
         {
           title: resource.name,
           image_url: resource.image_url,
@@ -10,14 +9,20 @@ module ChatfuelJson
           buttons: [button('json_plugin_url', '購買', purchase_url(resource))]
         }
       end
+      
+      if page[0]
+        product_elements << {
+          title: '下八個產品',
+          image_url: 'https://i.imgur.com/T0TMWEr.png',
+          subtitle: "總共有 #{Product.count} 個產品",
+          button: [button('json_plugin_url', '下一頁', products_url(resources[0].category_name, page[0]))]
+        }
+      end
+
       payload_content = payload(product_elements, 'gallery')
       [ to_attachments(payload_content) ]
     end
 
-    def purchase_url(product)
-      "#{IsspayApi.config.API_URL}/api/chatfuel/create_transaction?" + 
-      "user[messenger_id]=#{messenger_id}&products[][id]=#{product.id}&products[][quantity]=1"
-    end
 
     private
 

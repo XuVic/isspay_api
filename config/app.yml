@@ -3,7 +3,7 @@ default: &default
 
 development:
   <<: *default
-  API_URL: 'https://7c01b559.ngrok.io'
+  API_URL: 'https://d0d4db85.ngrok.io'
 
 test:
   <<: *default

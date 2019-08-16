@@ -13,7 +13,7 @@ Rails.describe Api::Chatfuel::ProductsController, type: :request do
   describe '#index' do
     context 'has products' do
       before :all do
-        query_str = "user[messenger_id]=#{@messenger_id}&product[category]=snack"
+        query_str = "user[messenger_id]=#{@messenger_id}&product[category]=snack&page=1"
         get "/api/chatfuel/products?#{query_str}"
         @snacks = Product.find_by_category('snack')
         @response_body = Hash.symbolize(JSON.parse(response.body))
@@ -26,7 +26,7 @@ Rails.describe Api::Chatfuel::ProductsController, type: :request do
 
     context 'has no products' do
       before :all do
-        query_str = "user[messenger_id]=#{@messenger_id}&product[category]=drink"
+        query_str = "user[messenger_id]=#{@messenger_id}&product[category]=drink&page=1"
         get "/api/chatfuel/products?#{query_str}"
         @snacks = Product.find_by_category('snack')
       end

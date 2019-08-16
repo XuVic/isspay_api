@@ -10,6 +10,8 @@
 
 FactoryBot.define do
   factory :category do
-    name { %i[Snack Drink].sample }
+    name { %i[snack drink].sample }
   end
+
+  # initialize_with { Category.find_or_create_by(name: name) }
 end
