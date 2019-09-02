@@ -23,8 +23,11 @@ class ResponseSerializer
 
   def build_hash
     return unless @serializer || options[:serializer_type]
-
+    
     serializable_hash[:type] = options[:serializer_type].to_s
+
+    return [] if @serializer.is_a?(Array) && @serializer.empty?
+
     case options[:serializer_type]
     when :resource
       serializable_hash[:resource] = data_hash

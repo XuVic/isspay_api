@@ -19,7 +19,8 @@ Rails.application.routes.draw do
       end
 
       resources :products, only: %i[index update create destroy]
-      
+      resources :transactions, only: %i[index update craete destroy]
+
       root to: Proc.new { default_message(api_welcome_msg) }
     end
 

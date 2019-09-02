@@ -6,6 +6,5 @@ RSpec.describe NotifierMailer, type: :mailer do
     let(:mail) { NotifierMailer.welcome(user) }
 
     it { expect(mail.to).to include(user.email) }
-    it { binding.pry }
   end
 end

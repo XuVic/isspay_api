@@ -40,6 +40,12 @@ module JsonRenderHelper
 
   def render_resource_json(model_obj)
     response.status = options[:status] ? options[:status] : 200
+    
+    if model_obj.respond_to?(:each) && model_obj.empty?
+      set_response_body []
+      return
+    end
+    
     model_name = model_obj.respond_to?(:each) ? model_obj[0].model_name.to_s : model_obj.model_name.to_s
     model_serializer = "Resource::#{model_name}Serializer".constantize.new(model_obj)
     set_response_body model_serializer

@@ -4,7 +4,10 @@ module Abilities
       super(user)
   
       if user_exist?
-        can :index, resource
+        can :read, resource do |t|
+          t.account_id == @user.account.id || @user.admin?
+        end
+        
         can :modify, resource, account_id: @user.account.id
       end
     end
