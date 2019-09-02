@@ -7,13 +7,13 @@
 #  updated_at :datetime         not null
 #  account_id :uuid
 #  genre      :integer          default("purchase"), not null
-#  status     :integer          default(0), not null
+#  state      :integer
 #
 
 FactoryBot.define do
   factory :transaction do
     association :account, factory: :account
-    status { 0 }
+    state { 0 }
     trait :purchase do
       genre { 0 }
       after(:create) do |t|

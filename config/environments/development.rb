@@ -10,6 +10,7 @@ Rails.application.configure do
     port: 1025,
     domain: 'localhost.localdomain',
   }
+  config.active_job.queue_adapter = :sidekiq
   
   config.cache_classes = false
 

@@ -13,7 +13,7 @@
 #  remember_created_at    :datetime
 #  first_name             :string
 #  last_name              :string
-#  messenger_id           :string           not null
+#  messenger_id           :string
 #
 
 require 'rails_helper'

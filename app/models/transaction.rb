@@ -7,10 +7,12 @@
 #  updated_at :datetime         not null
 #  account_id :uuid
 #  genre      :integer          default("purchase"), not null
-#  status     :integer          default(0), not null
+#  state      :integer
 #
 
 class Transaction < ApplicationRecord
+  include AASM
+
   has_many :purchased_products
   has_many :products, through: :purchased_products
   has_one :transfer_detail
@@ -18,6 +20,7 @@ class Transaction < ApplicationRecord
   belongs_to :account
 
   enum genre: %i[purchase transfer]
+  enum state: %i[unpaid canceled paid]
 
   delegate :owner, to: :account
 
@@ -26,6 +29,15 @@ class Transaction < ApplicationRecord
       destroy_transfer
     elsif type == 'purchase'
       destroy_purchase
+    end
+  end
+
+  aasm column: :state, enum: true do
+    state :unpaid, initial: true
+    state :canceled, :paid
+
+    event :pay do
+      transitions from: :unpaid, to: :paid
     end
   end
 

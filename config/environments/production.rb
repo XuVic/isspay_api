@@ -11,6 +11,7 @@ Rails.application.configure do
     authentication: :login,
     enable_ssl: true
   }
+  config.active_job.queue_adapter = :sidekiq
   
   # Code is not reloaded between requests.
   config.cache_classes = true

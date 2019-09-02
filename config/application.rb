@@ -24,6 +24,7 @@ module IsspayApi
 
   class Application < Rails::Application
 
+    
     config.cache_store = :redis_cache_store, { url: IsspayApi.config.REDIS_URL }
     config.action_controller.perform_caching = true
 
