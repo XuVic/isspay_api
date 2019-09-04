@@ -29,9 +29,9 @@ class BaseForm
         resource.save!
       end
 
-      return resource if resource.persisted?
+      Result.new(status: 201, body: resource) if resource.persisted?
     else
-      errors
+      Result.new(status: 422, body: errors)
     end
   end
 

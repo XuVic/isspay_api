@@ -2,12 +2,8 @@ module Api::V1::User
   module Registration
     def create
       result = UserForm.in_create(sign_up_resource).submit
-      if error?(result)
-        render_json result, type: :error
-      elsif resource?(result)
-        render_json result, type: :resource
-      end
-      
+
+      respond_with result
     end
 
     private
@@ -19,7 +15,7 @@ module Api::V1::User
       build_resource(sign_up_params)
     end
 
-    def sanitize_params
+    def sanitize_sign_up_params
       params[:user][:gender] = params[:user][:gender].to_i
       params[:user][:role] = params[:user][:role].to_i
     end

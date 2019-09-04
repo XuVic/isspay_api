@@ -33,6 +33,7 @@ RSpec.describe Api::V1::TransactionsController, type: :request do
         get "#{endpoint}?#{query_string}", headers: { Authorization: "Bearer #{user_token}" }
         expect(response.status).to eq 200
         expect(response_body['type']).to eq 'resource' 
+        binding.pry
       end
     end
   end

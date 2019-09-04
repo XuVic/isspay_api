@@ -16,8 +16,18 @@ class AuthToken
     year: ONE_YEAR
   }
 
-  class ExpiredTokenError < StandardError; end
-  class InvalidTokenError < StandardError; end
+  class ExpiredTokenError < StandardError
+    def initialize
+      @message = 'Token is expired, please login again.'
+      super(@message)
+    end
+  end
+  class InvalidTokenError < StandardError
+    def initialize
+      @message = 'Token is invalid.'
+      super(@message)
+    end
+  end
   
   class Payload < SimpleDelegator
     def self.deserialize(json_str)
@@ -47,7 +57,7 @@ class AuthToken
     end
 
     def payload(token)
-      payload64, expire_date = detokenize(token).split('.')
+      payload64, expire_date = detokenize!(token).split('.')
 
       expired?(expire_date)
 
@@ -99,7 +109,7 @@ class AuthToken
       "#{cipher64}.#{nonce64}.#{signature64}"
     end
 
-    def detokenize(token)
+    def detokenize!(token)
       valid?(token)
 
       cipher64, nonce64, signature64 = token.split('.')

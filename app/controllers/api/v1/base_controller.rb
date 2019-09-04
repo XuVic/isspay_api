@@ -4,14 +4,12 @@ class Api::V1::BaseController < ApplicationController
 
   private
 
-  def unauthorized
-    response.set_header('Authenticate', "Bearer realm='Access to the #{Rails.env} site'")
-    error_message = ['Please get the access token.']
-    render_json error_message, { type: :error, status: 401 }
+  def unauthorized(expectation)
+    respond_with_expectation(expectation, 401)
   end
 
   def permission_denied(expectation)
-    render_json expectation.message, { type: :error, status: 403 } 
+    respond_with_expectation(expectation, 403)
   end
 
   def current_user
@@ -38,13 +36,5 @@ class Api::V1::BaseController < ApplicationController
     standard, token = authorization_str.split(' ')
 
     standard == 'Bearer' ? token : nil
-  end
-
-  def render_form_result(form_result, options = {})
-    if error?(form_result)
-      render_json form_result, options.merge({type: :error})
-    elsif resource?(form_result)
-      render_json form_result, options.merge({type: :resource})
-    end
   end
 end

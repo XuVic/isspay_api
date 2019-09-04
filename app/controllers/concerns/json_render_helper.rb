@@ -3,24 +3,26 @@ module JsonRenderHelper
 
   attr_reader :options
 
-  def render_json(obj, options = {})
-    return nil unless obj
-
-    @options = options
+  def render_resources(model_obj, status)
+    response.status = status
     
-    case options[:type]
-    when :error
-      render_error_json(obj)
-    when :resource
-      render_resource_json(obj)
-    when :message
-      response.status = options[:status] ? options[:status] : 200
-      set_response_body(obj)
-    else
-    end
+    model_name = model_obj.respond_to?(:each) ? model_obj[0].model_name.to_s : model_obj.model_name.to_s
+    model_serializer = "Resource::#{model_name}Serializer".constantize.new(model_obj)
+    
+    set_response_body model_serializer
   end
 
-  private
+  def render_messages(messages, status)
+    response.status = status
+
+    set_response_body messages
+  end
+
+  def redner_errors(errors, status)
+    response.status = status
+
+    set_response_body ErrorSerializer.new(errors)
+  end
 
   def set_response_body(serializer)
     set_response_header
@@ -36,23 +38,5 @@ module JsonRenderHelper
     {
       serializer_type: options[:type]
     }
-  end
-
-  def render_resource_json(model_obj)
-    response.status = options[:status] ? options[:status] : 200
-    
-    if model_obj.respond_to?(:each) && model_obj.empty?
-      set_response_body []
-      return
-    end
-    
-    model_name = model_obj.respond_to?(:each) ? model_obj[0].model_name.to_s : model_obj.model_name.to_s
-    model_serializer = "Resource::#{model_name}Serializer".constantize.new(model_obj)
-    set_response_body model_serializer
-  end
-
-  def render_error_json(error)
-    response.status = options[:status] ? options[:status] : 400
-    set_response_body ErrorSerializer.new(error)
   end
 end

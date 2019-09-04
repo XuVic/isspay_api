@@ -1,7 +1,7 @@
 module ControllerHelpers
   def create_token(user)
     post '/api/v1/users/auth', params: { user: { email: user.email, password: user.password } }
-    response_body['message']['access_token']
+    response_body['data']['access_token']
   end
 
   def response_body

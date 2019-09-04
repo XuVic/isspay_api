@@ -4,14 +4,9 @@ class Api::V1::ProductsController < Api::V1::BaseController
 
   def create
     authorize! :create, Product, message: "You don't have right to build the product."
-    create_form = ProductForm.in_create(product_resource)
-    result = create_form.submit
+    result = ProductForm.in_create(product_resource).submit
     
-    if error?(result)
-      render_json result, type: :error
-    else
-      render_json result, { type: :resource, status: 201 }
-    end
+    respond_with result
   end
 
   def index
@@ -20,28 +15,28 @@ class Api::V1::ProductsController < Api::V1::BaseController
     products.each do |product|
       authorize! :index, product
     end
-    
-    render_json products, type: :resource
+
+    respond_with Result.new(status: 200, body: products)
   end
 
   def update
     authorize! :update, @targeted_product, message: "You don't have right to modify the product."
-    update_form = ProductForm.in_update(@targeted_product, attributes: product_params)
-    result = update_form.submit
+    result = ProductForm.in_update(@targeted_product, attributes: product_params).submit
 
-    render_form_result result
+    respond_with result
   end
 
   def destroy
     authorize! :destroy, @targeted_product, message: "You don't have right to modify the product."
     
+    message = "Product(#{product_id}) cann't be deleted."
+    status = 422
     if @targeted_product.destroy
-      deleted_message = "Product(#{product_id}) has been already deleted."
-      render_json deleted_message, type: :message
-    else
-      error_message = "Product(#{product_id}) cann't be deleted."
-      render_json error_message, type: :error
+      message = "Product(#{product_id}) has been already deleted."
+      status = 200
     end
+
+    respond_with Result.new(status: status, body: message)
   end
 
   private
@@ -64,6 +59,6 @@ class Api::V1::ProductsController < Api::V1::BaseController
   end
 
   def find_product
-    @targeted_product = Product.find(product_id)
+    @targeted_product ||= Product.find(product_id)
   end
 end

@@ -15,15 +15,16 @@ class ApplicationController < ActionController::Metal
     @_current_ability ||= Abilities::Ability.new(current_user)
   end
 
-  def error?(obj)
-    obj.is_a?(ActiveModel::Errors)
+  def respond_with(result)
+    responder.new(self, result).call
   end
 
-  def resource?(obj)
-    if obj.respond_to?(:each)
-      obj[0].is_a?(ActiveRecord::Base)
-    else
-      obj.is_a?(ActiveRecord::Base)
-    end
+  def respond_with_expectation(expectation, status)
+    result = Result.new(status: status, body: expectation.message)
+    respond_with result
+  end
+
+  def responder
+    ApiResponder
   end
 end
