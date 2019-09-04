@@ -8,6 +8,10 @@ module ControllerHelpers
     JSON.parse(response.body)
   end
 
+  def response_data
+    response_body['data']
+  end
+
   def resource_attributes
     return nil unless response_body['type'] == 'resource'
 

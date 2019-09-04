@@ -19,7 +19,7 @@ Rails.application.routes.draw do
       end
 
       resources :products, only: %i[index update create destroy]
-      resources :transactions, only: %i[index update craete destroy] do
+      resources :transactions, only: %i[index update create destroy] do
         collection do
           get 'search', to: 'transactions#search'
         end

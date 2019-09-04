@@ -16,8 +16,7 @@ RSpec.describe Api::V1::TransactionsController, type: :request do
         get endpoint, headers: { Authorization: "Bearer #{user_token}" }
         expect(response.status).to eq 200
         expect(response_body['type']).to eq 'resource' 
-        expect(response_body['resource'].size).to eq transactions.size
-        expect(resource_attributes).to include('amount')
+        expect(response_body['data'].size).to eq transactions.size
       end
 
       it 'return unathorized error' do
@@ -33,12 +32,23 @@ RSpec.describe Api::V1::TransactionsController, type: :request do
         get "#{endpoint}?#{query_string}", headers: { Authorization: "Bearer #{user_token}" }
         expect(response.status).to eq 200
         expect(response_body['type']).to eq 'resource' 
-        binding.pry
       end
     end
   end
 
   describe '#create' do
+    let(:products) { 5.times.map { create(:product, :snack) } }
+
+    context 'valid products information' do
+      it 'return transaction information' do
+        params = products.map { |p| { id: p.id, quantity: 2 } }
+        post endpoint, params: { products: params }, headers: { Authorization: "Bearer #{user_token}" }
+        
+        expect(response.status).to eq 201
+        expect(products[0].quantity).to eq (Product.find(products[0].id).quantity + 2)
+        expect(User.find(user.id).balance).to eq(user.balance - response_data['attributes']['amount'])
+      end
+    end
   end
 
   describe '#destroy' do

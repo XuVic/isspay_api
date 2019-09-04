@@ -24,6 +24,10 @@ class Account < ApplicationRecord
     credit - debit
   end
 
+  def pay!(cost)
+    increment!(:debit, by = cost)
+  end
+
   def order(products, options = {})
     cost = products.reduce(0) { |c, p| c + p.price }
     raise TransactionInvalid if (cost > balance && !options[:allowed]) || !products_available?(products)

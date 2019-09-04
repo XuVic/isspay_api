@@ -8,9 +8,9 @@ module Api::Chatfuel
       transaction_form = TransactionForm.new(current_user, purchased_products)
       result = transaction_form.submit
       
-      if resource?(result)
-        message = ChatfuelJson::Response.new(resources: [result], messenger_id: messenger_id)
-        message.body_to(:receipt_reply, result)
+      if result.success?
+        message = ChatfuelJson::Response.new(resources: [result.body], messenger_id: messenger_id)
+        message.body_to(:receipt_reply, result.body)
         render_json message
       end
     end

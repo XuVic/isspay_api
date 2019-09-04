@@ -1,7 +1,13 @@
 class Api::V1::TransactionsController < Api::V1::BaseController
   def index
     transactions.each { |t| authorize! :read, t }
-    render_json transactions, type: :resource
+    respond_with Result.new(status: 200, body: transactions)
+  end
+
+  def create
+    result = CreateTransaction.new(current_user, products_params).call
+
+    respond_with result
   end
 
   private
@@ -12,11 +18,6 @@ class Api::V1::TransactionsController < Api::V1::BaseController
     end
 
     @transactions ||= Transaction.where(account_id: current_user.account.id).all
-  end
-
-  def query_params
-    sanitize_query_string
-    params.permit(:state, :since, account_ids: [], amount: [])
   end
 
   def filter_transactions
@@ -31,6 +32,16 @@ class Api::V1::TransactionsController < Api::V1::BaseController
       end
     end
     transactions
+  end
+  
+  def products_params
+    sanitize_products_params
+    params.permit(products: [:id, :quantity])
+  end
+
+  def query_params
+    sanitize_query_string
+    params.permit(:state, :since, account_ids: [], amount: [])
   end
 
   def where_parameter
@@ -51,5 +62,12 @@ class Api::V1::TransactionsController < Api::V1::BaseController
     params['since'] = params['since'].to_i if params['since']
     params['amount'] = params['amount'].split(':').map(&:to_i) if params['amount']
     @sanitized = true
+  end
+
+  def sanitize_products_params
+    params[:products].each do |params|
+      params[:quantity] = params[:quantity].to_i
+      params
+    end
   end
 end
