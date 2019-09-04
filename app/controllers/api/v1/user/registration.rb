@@ -16,8 +16,10 @@ module Api::V1::User
     end
 
     def sanitize_sign_up_params
-      params[:user][:gender] = params[:user][:gender].to_i
-      params[:user][:role] = params[:user][:role].to_i
+      return unless params[:user]
+      
+      params[:user][:gender] = params[:user][:gender].to_i if params[:user][:gender]
+      params[:user][:role] = params[:user][:role].to_i if params[:user][:gender]
     end
   end
 end

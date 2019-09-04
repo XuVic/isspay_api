@@ -1,6 +1,7 @@
 class Api::V1::BaseController < ApplicationController
   rescue_from AuthToken::InvalidTokenError, with: :unauthorized
   rescue_from CanCan::AccessDenied, with: :permission_denied
+  rescue_from ActionController::ParameterMissing, with: :parameter_missing
 
   private
 
@@ -10,6 +11,10 @@ class Api::V1::BaseController < ApplicationController
 
   def permission_denied(expectation)
     respond_with_expectation(expectation, 403)
+  end
+
+  def parameter_missing(expectation)
+    respond_with_expectation(expectation, 400)
   end
 
   def current_user
