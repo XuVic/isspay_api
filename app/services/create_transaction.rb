@@ -22,10 +22,10 @@ class CreateTransaction < BaseService
   def validate_products
     find_products
     messages = []
-    @purchase_products = []
+    @purchased_products = []
     @products.each_with_index do |p, i|
       messages << "#{p.name} out of stock" if p.quantity < @product_params[i]['quantity']
-      @purchase_products += @product_params[i]['quantity'].times.map { p.clone } 
+      @purchased_products += @product_params[i]['quantity'].times.map { p.clone } 
     end
     
     @result = Result.new(status: 404, body: messages) unless messages.empty?
@@ -35,7 +35,7 @@ class CreateTransaction < BaseService
     return @result if @result
 
     @transaction = Transaction.create(account: @user.account, genre: 'purchase')
-    @transaction.products = @purchase_products
+    @transaction.products = @purchased_products
     @transaction.save
   end
 
