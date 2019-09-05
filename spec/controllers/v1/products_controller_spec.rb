@@ -2,79 +2,120 @@ require 'rails_helper'
 
 Rails.describe Api::V1::ProductsController, type: :request do
   before :all do
-    @prev_products = Product.all.size
     3.times { create(:product, :snack) }
     2.times { create(:product, :drink) }
-    @user = create(:user)
-    @admin = create(:user, :admin)
-    @token = create_token(@user)
-    @admin_token = create_token(@admin)
   end
 
+  let(:endpoint) { '/api/v1/products' }
+  let(:token) { create_user_token }
+  let(:admin_token) { create_admin_token }
+
   describe '#index' do
-    context 'query_string=nil' do
-      before :all do
-        get '/api/v1/products', headers: { Authorization: "Bearer #{@token}" }
-        @response_body = JSON.parse(response.body)
+    context 'when login as normal user' do
+      context 'and query_string is nil' do
+        let!(:send_request) { get endpoint, headers: auth_header(token) }
+        
+        it { expect(response_status).to eq 200 }
+        it { expect(response_data.size).to eq Product.all.size }
       end
 
-      it { expect(@response_body['data'].size).to eq(@prev_products + 5) }
+      context 'and query_string has category' do
+        let(:query_string) { "?category=#{Category.first.name}" }
+        let!(:send_request) { get endpoint + query_string, headers: auth_header(token) }
+
+        it { expect(response_status).to eq 200 }
+        it { expect(response_data.size).to eq Product.where(category_id: Category.first.id).all.size }
+      end
+    end
+
+    context 'when request without token' do
+      let!(:send_request) { get endpoint }
+
+      it { expect(response_status).to eq 401 }
     end
   end
 
   describe '#destroy' do
-    context 'login as admin' do
-      before :all do
-        @pre_amount = Product.all.size
-        @product_id = Product.all.first.id
-        delete "/api/v1/products/#{@product_id}", headers: { Authorization: "Bearer #{@admin_token}" }
+    context 'when login as admin' do
+      context 'and product exist in database' do
+        let(:product_id) { Product.first.id }
+        let!(:send_request) { delete "#{endpoint}/#{product_id}", headers: auth_header(admin_token) }
+
+        it { expect(response_status).to eq 200 }
+        it { expect { Product.find(@product_id) }.to raise_error(ActiveRecord::RecordNotFound) }
       end
-  
-      it { expect(response.status).to eq 200 }
-      it { expect { Product.find(@product_id) }.to raise_error(ActiveRecord::RecordNotFound) }
-      it { expect(Product.all.size).to eq(@pre_amount - 1) }
+
+      context 'and product cannot be found' do
+        let(:product_id) { 'error' }  
+        let!(:send_request) { delete "#{endpoint}/#{product_id}", headers: auth_header(admin_token) }
+
+        it { expect(response_status).to eq 404 }
+      end
     end
 
-    context 'login as normal user' do
-      before :all do
-        @pre_amount = Product.all.size
-        @product_id = Product.all.first.id
-        delete "/api/v1/products/#{@product_id}", headers: { Authorization: "Bearer #{@token}" }
-      end
+    context 'when login as normal user' do
+      let(:product_id) { Product.first.id }
+      let!(:send_request) { delete "#{endpoint}/#{product_id}", headers: auth_header(token) }
 
-      it { expect(response.status).to eq 403 }
-      it { expect(Product.find(@product_id)).not_to be nil }
+      it { expect(response_status).to eq 403 }
+      it { expect(Product.find(product_id)).not_to be nil }
     end
   end
 
   describe '#update' do
-    context 'login as admin' do
-      before :all do
-        @product = Product.all.first
-        @org_name = @product.name
-        @product_id = @product.id
-        put "/api/v1/products/#{@product_id}", headers: { Authorization: "Bearer #{@admin_token}" }, 
-                               params: { product: { name: "#{@product.name}_modified" } }
-      end
+    let(:product) { Product.first }
+    let(:params) { { product: { name: "#{product.name}_modified" } } }
 
-      it { expect(response.status).to eq 201 }
-      it { expect(Product.find(@product_id).name).to eq "#{@org_name}_modified" }
-      it { expect(Product.find(@product_id).price).to eq @product.price }
+    context 'when login as admin' do
+      let!(:send_request) { put "#{endpoint}/#{product.id}", headers: auth_header(admin_token),
+                                                             params: params }
+                                                             
+      it { expect(response_status).to eq 201 }
+      it { expect(Product.find(product.id).name).to include '_modified' }
+      it { expect(Product.find(product.id).price).to eq product.price }
+    end
+
+    context 'when login as normal user' do
+      let!(:send_request) { put "#{endpoint}/#{product.id}", headers: auth_header(token),
+                                                             params: params }
+                                                             
+      it { expect(response_status).to eq 403 }
     end
   end
 
   describe '#create' do
-    context 'login as admin' do
-      before :all do
-        @pre_products_size = Product.all.size
-        product_attributes = build(:product, :snack).attributes
-        product_attributes[:category_id] = Category.first.id
-        post '/api/v1/products', headers: { Authorization: "Bearer #{@admin_token}" },
-                                 params: { product: product_attributes }
+    let(:product_attr) { build(:product).attributes.tap { |attr| attr['category_id'] = Category.first.id } }
+
+    context 'when login as admin' do
+      
+      context 'and sumbit data is valid' do
+        let!(:send_request) { post endpoint, headers: auth_header(admin_token),
+                                             params: { product: product_attr } }
+
+        it { expect(response_status).to eq 201 }
+        it { expect(Product.where(id: response_data['id']).exists?).to be true }
       end
 
-      it { expect(response.status).to eq 201 }
-      it { expect(Product.all.size).to eq (@pre_products_size + 1) }
+      context 'and product qunatity is lower than zero' do
+        let(:invalid_attr) { product_attr.tap { |attr| attr['quantity'] = -1 } }
+        let!(:send_request) { post endpoint, headers: auth_header(admin_token),
+                                             params: { product: invalid_attr } }
+        
+        it { expect(response_status).to eq 422 }
+      end
+
+      context 'and submit data is empty' do
+        let!(:send_request) { post endpoint, headers: auth_header(admin_token) }
+        
+        it { expect(response_status).to eq 400 }
+      end
+    end
+
+    context 'when login as normal user' do
+      let!(:send_request) { post endpoint, headers: auth_header(token),
+                                           params: { product: product_attr } }
+
+      it { expect(response_status).to eq 403 }
     end
   end
 end

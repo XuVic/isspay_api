@@ -1,4 +1,18 @@
 module ControllerHelpers
+  def auth_header(token)
+    { Authorization: "Bearer #{token}" }
+  end
+
+  def create_user_token
+    user = create(:user)
+    create_token(user)
+  end
+
+  def create_admin_token
+    admin = create(:user, :admin)
+    create_token(admin)
+  end
+
   def create_token(user)
     auth_request(user)
     response_data['access_token']

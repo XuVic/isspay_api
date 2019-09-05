@@ -10,8 +10,13 @@ class Api::V1::ProductsController < Api::V1::BaseController
   end
 
   def index
-    products = Product.all
-    
+    products = if query_params.empty? 
+      Product.all
+    else
+      relation = Product.find_by_category(query_params['category']) if query_params['category']
+      relation.all
+    end 
+
     products.each do |product|
       authorize! :index, product
     end
@@ -40,6 +45,10 @@ class Api::V1::ProductsController < Api::V1::BaseController
   end
 
   private
+
+  def query_params
+    params.permit(:category, :price, :quantity)
+  end
 
   def sanitize_params
     product_params[:price] = product_params[:price].to_f if product_params[:price]
