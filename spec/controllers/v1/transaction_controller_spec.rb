@@ -2,56 +2,108 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::TransactionsController, type: :request do
 
+  before :all do
+    @user_a = create(:user)
+    @user_b = create(:user)
+    @admin = create(:user, :admin)
+
+    @transactions_a = 5.times.map { create(:transaction, :purchase, account: @user_a.account) }
+    @transactions_b = 10.times.map { create(:transaction, :purchase, account: @user_b.account) }
+    @transactions_c = 15.times.map { create(:transaction,:purchase, account: @admin.account) }
+  end
+  
   let(:endpoint) { '/api/v1/transactions' }
-  let(:user) { create(:user) }
-  let(:admin) { create(:user, role: 'admin') }
-  let(:user_token) { create_token(user) }
-  let(:admin_token) { create_token(admin) }
-  let!(:transactions) { 5.times.map { create(:transaction, :purchase, account: user.account) } }
-  let!(:admin_transactions) { 3.times.map { create(:transaction, :purchase, account: admin.account) } }
+  let(:token_a) { create_token(@user_a) }
+  let(:token_b) { create_token(@user_b) }
+  let(:admin_token) { create_token(@admin) }
 
   describe '#index' do
-    context 'login as normal user' do
-      it 'return successful response' do
-        get endpoint, headers: { Authorization: "Bearer #{user_token}" }
-        expect(response.status).to eq 200
-        expect(response_body['type']).to eq 'resource' 
-        expect(response_body['data'].size).to eq transactions.size
+    let(:query_string) { "account_ids[]=#{@user_b.account.id}&account_ids[]=#{@admin.account.id}" }
+
+    context 'when login as user A' do
+      context 'and query string is nil (i.e access his own resources)' do
+        let!(:send_request) { get endpoint, headers: auth_header(token_a) }
+
+        it { expect(response_status).to eq 200 }
+        it { expect(response_data.size).to eq @transactions_a.size }
       end
 
-      it 'return unathorized error' do
-        query_string = "account_ids[]=#{user.account.id}&account_ids[]=#{admin.account.id}"
-        get "#{endpoint}?#{query_string}", headers: { Authorization: "Bearer #{user_token}" }
-        expect(response.status).to eq 403
+      context 'and query string has account_ids (i.e access others resources)' do
+        let!(:send_request) { get "#{endpoint}?#{query_string}", headers: auth_header(token_a) }
+
+        it { expect(response_status).to eq 403 }
       end
     end
 
-    context 'login as admin' do
-      it 'return sucessful response' do
-        query_string = "account_ids[]=#{user.account.id}&amount=#{transactions[0].amount}:&state=unpaid&since=#{transactions[0].created_at.to_i}"
-        get "#{endpoint}?#{query_string}", headers: { Authorization: "Bearer #{user_token}" }
-        expect(response.status).to eq 200
-        expect(response_body['type']).to eq 'resource' 
+    context 'when login as admin' do
+      context 'and query string has account_ids' do
+        let!(:send_request) { get "#{endpoint}?#{query_string}", headers: auth_header(admin_token) }
+
+        it { expect(response_status).to eq 200 }
+        it { expect(response_data.size).to eq @transactions_b.size + @transactions_c.size }
       end
     end
   end
 
   describe '#create' do
-    let(:products) { 5.times.map { create(:product, :snack) } }
+    let(:products) { 5.times.map { create(:product, :snack) } + 5.times.map { create(:product, :drink) } }
+  
+    context 'when login as normal user' do
+      context 'and purchase data is valid' do
+        let(:params) { products.map { |p| { product_id: p.id, quantity: p.quantity - 1 } } }
+        let!(:send_request) { post endpoint, params: { purchases: params, transaction: { genre: 'purchase' } }, headers: auth_header(token_a) }
 
-    context 'valid products information' do
-      it 'return transaction information' do
-        params = products.map { |p| { id: p.id, quantity: 2 } }
-        post endpoint, params: { products: params }, headers: { Authorization: "Bearer #{user_token}" }
-        
-        expect(response.status).to eq 201
-        expect(products[0].quantity).to eq (Product.find(products[0].id).quantity + 2)
-        expect(User.find(user.id).balance).to eq(user.balance - response_data['attributes']['amount'])
+        it { expect(response_status).to eq 201 }
+        it { expect(Product.find(products[0].id).quantity).to eq 1 }
+        it { expect(User.find(@user_a.id).balance).to eq @user_a.balance - response_data['attributes']['amount'] }
+      end
+
+      context 'and products is out of stock' do
+        let(:invalid_params) { products.map { |p| { product_id: p.id, quantity: p.quantity + 1 } } }
+        let!(:send_request) { post endpoint, params: { purchases: invalid_params, transaction: { genre: 'purchase' } }, headers: auth_header(token_a) }
+
+        it { expect(response_status).to eq 404 }
+      end
+
+      context 'and transfer data is valid' do
+        let(:params) { [{ amount: 100, receiver_id: @user_b.id }] }
+        let!(:send_request) { post endpoint, params: { transfers: params, transaction: { genre: 'transfer' } }, headers: auth_header(token_a) }
+
+        it { expect(response_status).to eq 201 }
+        it { expect(User.find(@user_b.id).balance).to eq @user_b.balance + 100 }
+        it { expect(User.find(@user_a.id).balance).to eq @user_a.balance - 100 }
+      end
+
+      context 'and transfer data is invalid' do
+        let(:invalid_params) { [{amount: -2, receiver_id: @user_b.id}] }
+        let!(:send_request) { post endpoint, params: { transfers: invalid_params, transaction: { genre: 'transfer' } }, headers: auth_header(token_a) }
+
+        it { expect(response_status).to eq 404 }
       end
     end
   end
 
-  describe '#destroy' do
-  end
+  # describe '#destroy' do
+  #   context 'when login as UserA' do
+  #     context 'and destroy his own transactaion' do
+  #       let!(:send_request) { delete "#{endpoint}/#{@transactions_a[0].id}", headers: auth_header(token_a) }
+        
+  #       it { expect(response_status).to eq 200 }
+  #       it { expect{ Transaction.find(transactions_a[0].id) }.to raise_error(ActiveRecord::RecordNotFound) }
+  #     end
 
+  #     context 'and destroy other transaction' do
+  #       let!(:send_request) { delete "#{endpoint}/#{@transactions_b[0].id}", headers: auth_header(token_a) }
+      
+  #       it { expect(response_status).to eq 403 }
+  #       it { expect(Transaction.where(id: @transactions_b[0].id).exists?).to eq true }
+  #     end
+
+  #     context 'and transaction cannot be found' do
+  #       let!(:send_request) { delete "#{endpoint}/wrong_id", headers: auth_header(token_a) }
+        
+  #       it { expect(response_status).to eq 404 }
+  #     end
+  #   end
+  # end
 end

@@ -28,32 +28,8 @@ class Account < ApplicationRecord
     increment!(:debit, by = cost)
   end
 
-  def order(products, options = {})
-    cost = products.reduce(0) { |c, p| c + p.price }
-    raise TransactionInvalid if (cost > balance && !options[:allowed]) || !products_available?(products)
-
-    self.class.transaction do
-      t = Transaction.create(account: self, genre: 'purchase')
-      t.products = products
-      t.save
-      purchased_products(products)
-      self.debit += cost
-      save
-      t
-    end
-  end
-
-  def transfer(receiver, amount)
-    raise TransactionInvalid if amount > balance
-
-    self.class.transaction do
-      transaction = Transaction.create(account: self, genre: 'transfer')
-      TransferDetail.create(receiver: receiver, amount: amount, transfer: transaction)
-      receiver.credit += amount
-      receiver.save
-      self.debit += amount
-      save
-    end
+  def receive!(money)
+    increment!(:credit, by = money)
   end
 
   def consumption(months)
@@ -67,32 +43,5 @@ class Account < ApplicationRecord
         cost: selected_orders.reduce(0) { |sum, o| sum += o.amount }
       }
     end
-  end
-
-  private
-
-  def products_available?(products)
-    products_hash(products).each do |k, v|
-      product = products_hash[k][0]
-
-      return false if !product.available? || product.quantity < v.count
-    end
-    true
-  end
-
-  def purchased_products(products)
-    self.class.transaction do
-      products_hash(products).each do |k, v|
-        product = products_hash[k][0]
-        product.quantity -= v.count
-        product.save
-      end
-    end
-  end
-
-  def products_hash(products = nil)
-    return @products_hash unless products
-
-    @products_hash = products.group_by(&:id)
   end
 end

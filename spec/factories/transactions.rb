@@ -18,7 +18,8 @@ FactoryBot.define do
       genre { 0 }
       after(:create) do |t|
         products = 5.times.map { FactoryBot.create(:product, :snack) }
-        t.products = products
+        t.purchased_products_attributes = products.map { |p| { product_id: p.id, quantity: 1 } }
+        t.save
       end
     end
 
@@ -26,8 +27,8 @@ FactoryBot.define do
       genre { 1 }
       after(:create) do |t|
         receiver = FactoryBot.create(:user)
-        TransferDetail.create(receiver: receiver.account,
-                              transfer: t, amount: 50)
+        t.transfer_details_attributes = [{receiver_id: receiver.account.id, amount: 50}]
+        t.save
       end
     end
   end

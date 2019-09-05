@@ -5,12 +5,25 @@ class Api::V1::TransactionsController < Api::V1::BaseController
   end
 
   def create
-    result = CreateTransaction.new(current_user, products_params).call
 
+    result = CreateTransaction.new(current_user, create_form).call
+   
     respond_with result
   end
 
   private
+
+  def genre
+    params.require(:transaction).require(:genre)
+  end
+
+  def create_form
+    if genre == 'purchase'
+      TransactionForm.purchase_products(current_user, purchase_params)
+    elsif genre == 'transfer'
+      TransactionForm.transfer_money(current_user, transfer_params)
+    end
+  end
 
   def transactions
     unless query_params.empty?
@@ -32,11 +45,6 @@ class Api::V1::TransactionsController < Api::V1::BaseController
       end
     end
     transactions
-  end
-  
-  def products_params
-    sanitize_products_params
-    params.permit(products: [:id, :quantity])
   end
 
   def query_params
@@ -64,9 +72,26 @@ class Api::V1::TransactionsController < Api::V1::BaseController
     @sanitized = true
   end
 
-  def sanitize_products_params
-    params[:products].each do |params|
+  def sanitize_purchase_params
+    params[:purchases].each do |params|
       params[:quantity] = params[:quantity].to_i
+      params
+    end
+  end
+
+  def purchase_params
+    sanitize_purchase_params
+    params.permit(purchases: [:product_id, :quantity]).require(:purchases)
+  end
+
+  def transfer_params
+    santiize_transfer_params
+    params.permit(transfers: [:receiver_id, :amount]).require(:transfers)
+  end
+
+  def santiize_transfer_params
+    params[:transfers].each do |params|
+      params[:amount] = params[:amount].to_i
       params
     end
   end

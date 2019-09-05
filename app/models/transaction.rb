@@ -15,9 +15,12 @@ class Transaction < ApplicationRecord
 
   has_many :purchased_products
   has_many :products, through: :purchased_products
-  has_one :transfer_detail
-  has_one :receiver, through: :transfer_detail
+  has_many :transfer_details
+  has_many :receivers, through: :transfer_details
   belongs_to :account
+
+  accepts_nested_attributes_for :transfer_details
+  accepts_nested_attributes_for :purchased_products
 
   enum genre: %i[purchase transfer]
   enum state: %i[unpaid canceled paid]
@@ -49,7 +52,7 @@ class Transaction < ApplicationRecord
     if genre == 'purchase'
       products.reduce(0) { |s, p| s + p.price }
     elsif genre == 'transfer'
-      transfer_detail.amount
+      transfer_details.reduce(0) { |s, t| s + t.amount }
     end
   end
 

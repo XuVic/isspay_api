@@ -1,62 +1,92 @@
 class CreateTransaction < BaseService
+  attr_reader :form
 
-  def initialize(user, product_params)
+  def initialize(user, form)
     super(user)
-    @product_params = product_params['products'].sort_by { |p| p['id'] }
+    @form = form
   end
 
   def call
-    validate_products()
-    sql_transaction do
-      create_transaction()
-      decrease_account_balance()
-      decrease_products_quantity()
-    end
+    create_purchase if form.purchase?
+    create_transfer if form.transfer?
+    
+    super()
+  rescue ServiceHalt
     @result
-  rescue => e
-    Result.new(staus: 404, body: 'Transaction cannot be created.')
   end
 
+  def create_purchase
+    validate_products
+
+    sql_transaction do
+      create_transaction('purchase')
+      decrease_account_balance
+      decrease_products_quantity
+    end
+  end
+
+  def create_transfer
+    validate_transfer
+
+    sql_transaction do
+      create_transaction('transfer')
+      decrease_account_balance
+      increase_receiver_balance
+    end
+  end 
+  
   private
   
   def validate_products
-    find_products
-    messages = []
-    @purchased_products = []
-    @products.each_with_index do |p, i|
-      messages << "#{p.name} out of stock" if p.quantity < @product_params[i]['quantity']
-      @purchased_products += @product_params[i]['quantity'].times.map { p.clone } 
-    end
+    purchase_products = form.valid_purchases
     
-    @result = Result.new(status: 404, body: messages) unless messages.empty?
+    if purchase_products.nil?
+      @result = Result.new(status: 404, body: form.errors.full_messages)
+      raise ServiceHalt
+    else
+      data[:purchase_products] = purchase_products
+    end
   end
 
-  def create_transaction
-    return @result if @result
+  def create_transaction(genre)
+    transaction = Transaction.create(account: @user.account, genre: genre)
+    
+    transaction.purchased_products_attributes = data[:purchase_products].map {|p| p.slice(:product_id, :quantity)} if transaction.genre == 'purchase'
+    transaction.transfer_details_attributes = data[:transfers_detail].map {|t| t.slice(:receiver_id, :amount)} if transaction.genre == 'transfer'
 
-    @transaction = Transaction.create(account: @user.account, genre: 'purchase')
-    @transaction.products = @purchased_products
-    @transaction.save
+
+    transaction.save
+    data[:transaction] = transaction
   end
 
   def decrease_account_balance
-    return @result if @result
-
-    @user.account.pay!(@transaction.amount)
+    user.account.pay!(data[:transaction].amount)
   end
 
   def decrease_products_quantity
-    return @result if @result
-  
-    @products.each_with_index do |p, i|
-      p.decrement!(:quantity, by = @product_params[i]['quantity'])
+    data[:purchase_products].each do |product_params|
+      product_params['product'].decrement!(:quantity, size = product_params['quantity'])
     end
 
-    @result = Result.new(status: 201, body: @transaction)
+    @result = Result.new(status: 201, body: data[:transaction])
   end
 
-  def find_products
-    product_ids = @product_params.map {|p| p['id']}
-    @products ||= Product.where(id: product_ids).order('id').all
+  def validate_transfer
+    transfers_detail = form.valid_transfers
+
+    if transfers_detail.nil?
+      @result = Result.new(status: 404, body: form.errors.full_messages)
+      raise ServiceHalt
+    else
+      data[:transfers_detail] = transfers_detail
+    end
+  end
+
+  def increase_receiver_balance
+    data[:transfers_detail].each do |transfer|
+      transfer['receiver'].account.receive!(transfer['amount']) 
+    end
+
+    @result = Result.new(status: 201, body: data[:transaction])
   end
 end
