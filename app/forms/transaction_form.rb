@@ -84,7 +84,7 @@ class TransactionForm < BaseForm
 
   def receivers
     receiver_ids = transfer_params.map {|t| t['receiver_id']}
-    @receivers ||= User.where(id: receiver_ids).order('id').all
+    @receivers ||= Account.where(id: receiver_ids).order('id').all
   end
 
   def purchase_products

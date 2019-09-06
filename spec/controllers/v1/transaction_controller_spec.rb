@@ -68,7 +68,7 @@ RSpec.describe Api::V1::TransactionsController, type: :request do
       let(:receiver) { create(:user) }
       let(:giver_token) { create_token(giver) }
       context 'and transfer data is valid' do
-        let(:params) { [{ amount: 100, receiver_id: receiver.id }] }
+        let(:params) { [{ amount: 100, receiver_id: receiver.account.id }] }
         let!(:send_request) { post endpoint, params: { transfers: params, transaction: { genre: 'transfer' } }, headers: auth_header(giver_token) }
 
         it { expect(response_status).to eq 201 }

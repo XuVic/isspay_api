@@ -5,13 +5,12 @@ module Api::Chatfuel
 
 
     def create
-      transaction_form = TransactionForm.new(current_user, purchased_products)
-      result = transaction_form.submit
-      
+      result = CreateTransaction.new(current_user, create_form).call
+
       if result.success?
         message = ChatfuelJson::Response.new(resources: [result.body], messenger_id: messenger_id)
         message.body_to(:receipt_reply, result.body)
-        render_json message
+        respond_with message
       end
     end
 
@@ -30,29 +29,47 @@ module Api::Chatfuel
 
     private
 
-    def purchased_products_params
-      params.permit(products: [:id, :quantity])
+    def genre
+      params.require(:transaction).require(:genre)
+    end
+  
+    def create_form
+      if genre == 'purchase'
+        TransactionForm.purchase_products(current_user, purchase_params)
+      elsif genre == 'transfer'
+        TransactionForm.transfer_money(current_user, transfer_params)
+      end
+    end
+
+    def sanitize_purchase_params
+      params[:purchases].each do |params|
+        params[:quantity] = params[:quantity].to_i
+        params
+      end
+    end
+
+    def purchase_params
+      sanitize_purchase_params
+      params.permit(purchases: [:product_id, :quantity]).require(:purchases)
     end
 
     def transaction_id
-      params.permit(:id).require(:id)
+      params.require(:id)
     end
 
     def find_transaction
       @transaction = Transaction.find(transaction_id)
     end
-  
-    def sanitize_params
-      params[:products].each do |params|
-        params[:quantity] = params[:quantity].to_i
-        params
-      end
+
+    def transfer_params
+      santiize_transfer_params
+      params.permit(transfers: [:receiver_id, :amount]).require(:transfers)
     end
   
-    def purchased_products
-      purchased_products_params[:products].inject([]) do |products, params|
-        temp = params[:quantity].times.map { Product.find(params[:id]) }
-        products += temp
+    def santiize_transfer_params
+      params[:transfers].each do |params|
+        params[:amount] = params[:amount].to_i
+        params
       end
     end
   end

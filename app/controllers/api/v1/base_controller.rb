@@ -3,7 +3,7 @@ class Api::V1::BaseController < ApplicationController
   rescue_from CanCan::AccessDenied, with: :forbidden
   rescue_from ActionController::ParameterMissing, with: :bad_request
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
-
+  
   private
 
   def current_user

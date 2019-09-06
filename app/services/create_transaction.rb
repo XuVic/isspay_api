@@ -52,11 +52,17 @@ class CreateTransaction < BaseService
     transaction = Transaction.create(account: @user.account, genre: genre)
     
     transaction.purchased_products_attributes = data[:purchase_products].map {|p| p.slice(:product_id, :quantity)} if transaction.genre == 'purchase'
-    transaction.transfer_details_attributes = data[:transfers_detail].map {|t| t.slice(:receiver_id, :amount)} if transaction.genre == 'transfer'
+    if transaction.genre == 'transfer'
+      transaction.transfer_details_attributes = data[:transfers_detail].map {|t| t.slice(:receiver_id, :amount)} 
+    end
 
 
-    transaction.save
-    data[:transaction] = transaction
+    if transaction.save
+      data[:transaction] = transaction
+    else
+      @result = Result.new(status: 404, body: transaction.errors.full_messages)
+      raise ServiceHalt
+    end
   end
 
   def decrease_account_balance
@@ -84,7 +90,7 @@ class CreateTransaction < BaseService
 
   def increase_receiver_balance
     data[:transfers_detail].each do |transfer|
-      transfer['receiver'].account.receive!(transfer['amount']) 
+      transfer['receiver'].receive!(transfer['amount']) 
     end
 
     @result = Result.new(status: 201, body: data[:transaction])

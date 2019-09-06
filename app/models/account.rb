@@ -44,4 +44,8 @@ class Account < ApplicationRecord
       }
     end
   end
+
+  def owner_name
+    owner.name
+  end
 end

@@ -6,7 +6,7 @@ module Api::Chatfuel
 
     private
     
-    def render_json(body)
+    def respond_with(body)
       response.status = 200
       self.response_body = body.to_message
     end

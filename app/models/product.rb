@@ -15,7 +15,8 @@
 class Product < ApplicationRecord
   belongs_to :category
   has_many :purchased_products
-  has_many :orders, through: :purchased_products
+  has_many :orders, through: :purchased_products 
+  scope :available, -> { where(["quantity > 0"]) }
   
   def self.find_by_category(category_name)
     return Product.all unless category_name

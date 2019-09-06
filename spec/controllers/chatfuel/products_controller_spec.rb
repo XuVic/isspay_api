@@ -3,35 +3,36 @@ require_relative 'templates/init'
 
 Rails.describe Api::Chatfuel::ProductsController, type: :request do
   before :all do
-    user = create(:user)
-    user.save
-    @messenger_id = user.messenger_id
-    create(:category, name: 'drink')
-    create(:product, :snack)
+    5.times { create(:product, :snack) }
+    5.times { create(:product, :drink, quantity: 0) }
   end
-  
+
+  let(:messenger_id) { create(:user).messenger_id }
+  let(:endpoint) { '/api/chatfuel/products' }
   describe '#index' do
-    context 'has products' do
-      before :all do
-        query_str = "user[messenger_id]=#{@messenger_id}&product[category]=snack&page=1"
-        get "/api/chatfuel/products?#{query_str}"
-        @snacks = Product.find_by_category('snack')
-        @response_body = Hash.symbolize(JSON.parse(response.body))
-        @template = Hash.symbolize(gallery_template)
+    context 'when inventory has products' do
+      let(:query_str) { "user[messenger_id]=#{messenger_id}&product[category]=snack&page=1" }
+      let(:template) { Hash.symbolize(gallery_template) }
+      let!(:send_request) { get "#{endpoint}?#{query_str}" }
+
+      it { expect(response_status).to eq 200 }
+      it { expect(response_body.same_key_structure? template).to be true  }
+
+      context 'and page is out of range' do
+        let(:query_str) { "user[messenger_id]=#{messenger_id}&product[category]=snack&page=20" }
+        let!(:send_request) { get "#{endpoint}?#{query_str}" }
+
+        it { expect(response_status).to eq 200 }
+        it { expect(response.body).to include('沒有庫存') }
       end
-  
-      it { expect(response.status).to eq 200 }
-      it { expect(@response_body.same_key_structure? @template).to be true  }
     end
 
-    context 'has no products' do
-      before :all do
-        query_str = "user[messenger_id]=#{@messenger_id}&product[category]=drink&page=1"
-        get "/api/chatfuel/products?#{query_str}"
-        @snacks = Product.find_by_category('snack')
-      end
 
-      it { expect(response.status).to eq 200 }
+    context 'when inventory has no products' do
+      let(:query_str) { "user[messenger_id]=#{messenger_id}&product[category]=drink&page=1" }
+      let!(:send_request) { get "#{endpoint}?#{query_str}" }
+      
+      it { expect(response_status).to eq 200 }
       it { expect(response.body).to include("沒有庫存") }
     end
   end

@@ -40,11 +40,23 @@ class Transaction < ApplicationRecord
     products.map(&:name)
   end
 
+  def receiver_names
+    receivers.map(&:owner_name)
+  end
+
   def amount
-    if genre == 'purchase'
+    if purchase?
       purchased_products.reduce(0) { |s, p| s + (p.price * p.quantity) }
-    elsif genre == 'transfer'
+    elsif transfer?
       transfer_details.reduce(0) { |s, t| s + t.amount }
     end
+  end
+
+  def purchase?
+    genre == 'purchase'
+  end
+
+  def transfer?
+    genre == 'transfer'
   end
 end

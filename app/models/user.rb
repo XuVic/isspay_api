@@ -56,4 +56,8 @@ class User < ApplicationRecord
   def admin?
     role == 'admin'
   end
+
+  def name
+    "#{last_name} #{first_name}"
+  end
 end

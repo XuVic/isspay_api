@@ -7,14 +7,8 @@ module ChatfuelJson
     end
 
     def receipt_reply(transaction)
-      text = "成功購買 #{resources[0].product_names.join(';')}，" \
-            "總金額為 #{resources[0].amount} "
-      replies = []
-      replies << quick_reply('還要吃', url: products_url('snack'))
-      replies << quick_reply('還要喝', url: products_url('drink'))
-      replies << quick_reply('取消購買', url: destroy_transaction_url(transaction))
-
-      message = { text: text, quick_replies: replies }
+      message = purchase_receipt(transaction) if transaction.purchase?
+      message = transfer_receipt(transaction) if transaction.transfer?
       [ message ]
     end
 
@@ -34,6 +28,24 @@ module ChatfuelJson
     end
 
     private
+
+    def purchase_receipt(transaction)
+      text = "成功購買 #{transaction.product_names.join(';')}，" \
+      "總金額為 #{transaction.amount} "
+      replies = []
+      replies << quick_reply('還要吃', url: products_url('snack'))
+      replies << quick_reply('還要喝', url: products_url('drink'))
+      replies << quick_reply('取消購買', url: destroy_transaction_url(transaction))
+
+      message = { text: text, quick_replies: replies }
+    end
+
+    def transfer_receipt(transaction)
+      text = "成功轉帳給 #{transaction.receiver_names.join(';')}，" \
+      "總金額為 #{transaction.amount}"
+      replies = [ quick_reply('取消轉帳', url: destroy_transaction_url(transaction)) ]
+      messages = { text: text, quick_replies: replies }
+    end
 
     def balance_message
       [

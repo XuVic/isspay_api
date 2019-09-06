@@ -16,7 +16,7 @@ module Api::Chatfuel
         message.body_to(:products_gallery, next_age)
       end
 
-      render_json message
+      respond_with message
     end
 
     private
@@ -26,7 +26,7 @@ module Api::Chatfuel
     end
 
     def products
-      Product.find_by_category(category).paginate(page, 9).all
+      Product.available.find_by_category(category).paginate(page, 9).all
     end
 
     def product_params
