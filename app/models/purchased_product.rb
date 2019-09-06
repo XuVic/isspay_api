@@ -9,4 +9,6 @@
 class PurchasedProduct < ApplicationRecord
   belongs_to :order, foreign_key: :transaction_id, class_name: 'Transaction'
   belongs_to :product
+
+  delegate :price, to: :product
 end

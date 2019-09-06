@@ -23,6 +23,15 @@ class Api::V1::BaseController < ApplicationController
     self.controller_name.classify.constantize
   end
 
+  def resource_id
+    params.require(:id)
+  end
+
+  def find_resoucre
+    model = find_model
+    @targeted_resource = model.find(resource_id)
+  end
+
   def token
     authorization_str = request.get_header('Authorization') || request.get_header('HTTP_AUTHORIZATION')
     return nil unless authorization_str

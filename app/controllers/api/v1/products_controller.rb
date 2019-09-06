@@ -1,5 +1,5 @@
 class Api::V1::ProductsController < Api::V1::BaseController
-  before_action :find_product, only: %i[destroy update]
+  before_action :find_resoucre, only: %i[destroy update]
   before_action :sanitize_params, only: %i[create update]
 
   def create
@@ -25,19 +25,19 @@ class Api::V1::ProductsController < Api::V1::BaseController
   end
 
   def update
-    authorize! :update, @targeted_product, message: "You don't have right to modify the product."
-    result = ProductForm.in_update(@targeted_product, attributes: product_params).submit
+    authorize! :update, @targeted_resource, message: "You don't have right to modify the product."
+    result = ProductForm.in_update(@targeted_resource, attributes: product_params).submit
 
     respond_with result
   end
 
   def destroy
-    authorize! :destroy, @targeted_product, message: "You don't have right to modify the product."
-    
-    message = "Product(#{product_id}) cann't be deleted."
+    authorize! :destroy, @targeted_resource, message: "You don't have right to modify the product."
+
+    message = "Product (#{resource_id}) cann't be deleted."
     status = 422
-    if @targeted_product.destroy
-      message = "Product(#{product_id}) has been already deleted."
+    if @targeted_resource.destroy
+      message = "Product (#{resource_id}) has been already deleted."
       status = 200
     end
 
@@ -61,13 +61,5 @@ class Api::V1::ProductsController < Api::V1::BaseController
 
   def product_resource
     Product.new(product_params)
-  end
-
-  def product_id
-    params.permit(:id)[:id]
-  end
-
-  def find_product
-    @targeted_product ||= Product.find(product_id)
   end
 end

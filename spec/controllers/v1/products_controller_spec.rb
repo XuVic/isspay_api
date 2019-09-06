@@ -84,7 +84,7 @@ Rails.describe Api::V1::ProductsController, type: :request do
   end
 
   describe '#create' do
-    let(:product_attr) { build(:product).attributes.tap { |attr| attr['category_id'] = Category.first.id } }
+    let(:product_attr) { build(:product).attributes.tap { |attr| attr['category_id'] = Category.first.id; attr['name'] = 'Test' } }
 
     context 'when login as admin' do
       

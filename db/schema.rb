@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_05_071518) do
+ActiveRecord::Schema.define(version: 2019_09_05_104153) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 2019_09_05_071518) do
     t.index ["category_id"], name: "index_products_on_category_id"
   end
 
-  create_table "purchased_products", id: false, force: :cascade do |t|
+  create_table "purchased_products", force: :cascade do |t|
     t.uuid "transaction_id"
     t.uuid "product_id"
     t.integer "quantity", default: 1, null: false
@@ -59,7 +59,7 @@ ActiveRecord::Schema.define(version: 2019_09_05_071518) do
     t.index ["account_id"], name: "index_transactions_on_account_id"
   end
 
-  create_table "transfer_details", id: false, force: :cascade do |t|
+  create_table "transfer_details", force: :cascade do |t|
     t.uuid "transaction_id"
     t.float "amount", null: false
     t.uuid "receiver_id"

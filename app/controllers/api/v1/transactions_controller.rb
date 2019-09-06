@@ -1,13 +1,21 @@
 class Api::V1::TransactionsController < Api::V1::BaseController
+  before_action :find_resoucre, only: :destroy
+
   def index
     transactions.each { |t| authorize! :read, t }
     respond_with Result.new(status: 200, body: transactions)
   end
 
   def create
-
     result = CreateTransaction.new(current_user, create_form).call
    
+    respond_with result
+  end
+
+  def destroy
+    authorize! :destroy, @targeted_resource
+    result = DeleteTransaction.new(current_user, @targeted_resource).call
+    
     respond_with result
   end
 

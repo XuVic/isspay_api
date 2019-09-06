@@ -20,6 +20,8 @@ FactoryBot.define do
         products = 5.times.map { FactoryBot.create(:product, :snack) }
         t.purchased_products_attributes = products.map { |p| { product_id: p.id, quantity: 1 } }
         t.save
+        t.account.increment!(:debit, size = t.amount)
+        products.each { |p| p.decrement!(:quantity, size = 1) }
       end
     end
 
@@ -29,6 +31,8 @@ FactoryBot.define do
         receiver = FactoryBot.create(:user)
         t.transfer_details_attributes = [{receiver_id: receiver.account.id, amount: 50}]
         t.save
+        receiver.account.increment!(:credit, size = t.amount)
+        t.account.increment!(:debit, size = t.amount)
       end
     end
   end
