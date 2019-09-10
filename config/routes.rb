@@ -35,6 +35,8 @@ Rails.application.routes.draw do
       get 'accounts/:messenger_id', to: 'accounts#show'
       get 'repayment', to: 'accounts#repay'
 
+    
+      resources :users, only: %i[create]
       resources :products, only: %i[index]
     end
   end

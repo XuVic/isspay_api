@@ -41,8 +41,8 @@ gem 'redis', '~> 4.1', '>= 4.1.2'
 # Configure environment variable
 gem 'econfig', '~> 2.1'
 # Cryptography library
+gem 'rbnacl', '>= 3.0.1'
 gem 'rbnacl-libsodium', '~> 1.0', '>= 1.0.16'
-gem 'rbnacl', '~> 5.0'
 # Authorization & Permission
 gem 'cancancan', '~> 3.0', '>= 3.0.1'
 # Background worker
@@ -51,6 +51,11 @@ gem 'sidekiq', '~> 5.2', '>= 5.2.7'
 gem 'aasm', '~> 5.0', '>= 5.0.5'
 # CORS
 gem 'rack-cors', '~> 1.0', '>= 1.0.3'
+
+gem 'responders', '~> 3.0'
+gem 'compass-rails', github: 'Compass/compass-rails'
+gem 'sprockets-rails', '~> 3.2', '>= 3.2.1'
+gem 'railties', '~> 5.2.3'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

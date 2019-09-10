@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Metal
   include ActiveSupport::Rescuable
   include ActionController::Rescue
   include CanCan::ControllerAdditions
+  include ActionController::RespondWith
   include ErrorsHandler
 
   def sanitize_params
