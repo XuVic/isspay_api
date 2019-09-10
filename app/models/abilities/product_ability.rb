@@ -3,7 +3,7 @@ module Abilities
     def initialize(user)
       super(user)
   
-      if user_exist?
+      if user_exist? && user_confirmed?
         can :index, resource
       end
 

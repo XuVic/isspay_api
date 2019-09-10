@@ -1,4 +1,4 @@
-module Api::V1::User
+module Api::V1::Users
   module Auth
     def create_token
       result = LoginForm.new(login_resource).submit

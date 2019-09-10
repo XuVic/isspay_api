@@ -1,4 +1,4 @@
-module Api::V1::User
+module Api::V1::Users
   module Registration
     def create
       result = UserForm.in_create(sign_up_resource).submit

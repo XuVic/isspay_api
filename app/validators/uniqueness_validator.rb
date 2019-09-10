@@ -3,9 +3,7 @@ class UniquenessValidator < ActiveModel::EachValidator
     find_model(record)
     relation = build_relation(attribute, value)
 
-    if relation.exists?
-      record.errors.add(attribute, :taken, message: "#{value} has already been taken")
-    end
+    record.errors.add(attribute, :taken, message: "(#{value}) has already been taken") if relation.exists?
   end
 
   private

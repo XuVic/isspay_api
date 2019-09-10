@@ -14,7 +14,7 @@ Rails.application.routes.draw do
       resources :users, only: %i[index create update] do
         collection do
           post 'auth', to: 'users#create_token'
-          get 'test', to: 'users#test'
+          get 'confirmation/:token', to: 'users#confirmation'
         end
       end
 

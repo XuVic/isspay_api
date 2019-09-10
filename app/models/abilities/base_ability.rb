@@ -11,7 +11,11 @@ module Abilities
     end
   
     def user_exist?
-      user.present? && user.id.present?
+      user.present? && user.persisted?
     end 
+
+    def user_confirmed?
+      user_exist? && user.confirmed?
+    end
   end
 end

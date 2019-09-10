@@ -19,8 +19,7 @@
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+  devise :database_authenticatable, :confirmable
 
   has_one :account, foreign_key: 'owner_id', dependent: :destroy
 
@@ -30,6 +29,10 @@ class User < ApplicationRecord
   enum role: %i[master phd candidate staff alumni admin]
 
   delegate :credit, :debit, :balance, :orders, :transfers, :transactions, to: :account
+
+  before_create do
+    skip_confirmation_notification!
+  end
 
   after_create do
     create_account

@@ -4,7 +4,7 @@ RSpec.describe MailerJob, type: :job do
   include ActiveJob::TestHelper
   
   subject(:user) { create(:user) }
-  let(:args) { { mailer: 'Notifier', action: 'welcome', args: [user.id]  } }
+  let(:args) { { mailer: 'Notifier', action: 'confirmation', args: [user.id]  } }
   subject(:job) { described_class.perform_later(args) }
 
   it 'enqueue jobs' do

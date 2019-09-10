@@ -3,7 +3,7 @@ default: &default
 
 development:
   <<: *default
-  API_URL: 'https://40c079eb.ngrok.io'
+  API_URL: 'http://e5f8dfc4.ngrok.io'
 
 test:
   <<: *default
@@ -11,4 +11,4 @@ test:
 
 production:
   REDIS_URL: 'redis://127.0.0.1:6379/1'
-  API_URL: 'https://40c079eb.ngrok.io'
+  API_URL: 'http://e5f8dfc4.ngrok.io'

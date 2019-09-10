@@ -1,24 +1,21 @@
 module Api::Chatfuel
   class UsersController < BaseController
     def create
-      result = UserForm.in_create(sign_up_resource).submit
-  
-      if result.success?
-        msg = "恭喜 #{result.body.name}，成功註冊 IssPay～～"
-        message = ChatfuelJson::Response.new(messages: [msg], messenger_id: messenger_id)
-        message.body_to(:text)
-        respond_with message
-      end
+      result = CreateUser.new(sign_up_params).call
+      
+      msg = result.error_messages if result.failure?
+
+      msg = ["恭喜 #{result.body.name}，成功註冊 IssPay～～", "請到 #{result.body.email} 信箱收取驗證信"] if result.success?
+
+      message = ChatfuelJson::Response.new(messages: msg, messenger_id: messenger_id)
+      message.body_to(:text)
+      respond_with message
     end
 
     private
     def sign_up_params
       sanitize_sign_up_params
-      params.require(:user).permit(:email, :password, :password_confirmation, :first_name, :last_name, :nick_name, :gender, :role, :messenger_id)
-    end
-
-    def sign_up_resource
-      build_resource(sign_up_params)
+      params.require(:user).permit(:email, :first_name, :last_name, :nick_name, :gender, :role, :messenger_id)
     end
 
     def sanitize_sign_up_params

@@ -5,7 +5,7 @@ class BaseService
 
   attr_reader :user, :data
 
-  def initialize(user, data = {})
+  def initialize(user = nil, data = {})
     @user = user
     @data = data
   end

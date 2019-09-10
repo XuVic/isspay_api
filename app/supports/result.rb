@@ -13,4 +13,12 @@ class Result
   def failure?
     @status >= 400
   end
+
+  def errors
+    body if failure?
+  end
+
+  def error_messages
+    errors.full_messages.uniq
+  end
 end
