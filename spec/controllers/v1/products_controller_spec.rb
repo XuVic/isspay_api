@@ -26,12 +26,21 @@ Rails.describe Api::V1::ProductsController, type: :request do
         it { expect(response_status).to eq 200 }
         it { expect(response_data.size).to eq Product.where(category_id: Category.first.id).all.size }
       end
+
+      context 'and query_string has price range and quantity range' do
+        let(:query_string) { "?price=:100&quantity=5:" }
+        let!(:send_request) { get endpoint + query_string, headers: auth_header(token) }
+        let(:filtered_products) { Product.where("price <= 100 and quantity >= 5") }
+
+        it { expect(response_status).to eq 200 }
+        it { expect(response_data.size).to eq filtered_products.size }
+      end
     end
 
     context 'when request without token' do
       let!(:send_request) { get endpoint }
 
-      it { expect(response_status).to eq 401 }
+      it { expect(response_status).to eq 403 }
     end
   end
 
@@ -101,7 +110,7 @@ Rails.describe Api::V1::ProductsController, type: :request do
         let!(:send_request) { post endpoint, headers: auth_header(admin_token),
                                              params: { product: invalid_attr } }
         
-        it { expect(response_status).to eq 422 }
+        it { expect(response_status).to eq 406 }
       end
 
       context 'and submit data is empty' do

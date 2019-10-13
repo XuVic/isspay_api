@@ -2,6 +2,11 @@ class BaseService
 
   class NoImplementError < StandardError; end
   class ServiceHalt < StandardError; end
+  class ServiceError < StandardError
+    def initialize(msg)
+      super(msg)
+    end
+  end
 
   attr_reader :user, :data
 

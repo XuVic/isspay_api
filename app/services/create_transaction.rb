@@ -1,68 +1,33 @@
 class CreateTransaction < BaseService
-  attr_reader :form
+  attr_reader :params
 
-  def initialize(user, form)
+  def initialize(user, params)
     super(user)
-    @form = form
+    @params = params
   end
 
-  def call
-    create_purchase if form.purchase?
-    create_transfer if form.transfer?
-    
-    super()
-  rescue ServiceHalt
-    @result
-  end
-
-  def create_purchase
-    validate_products
-
+  def call!
     sql_transaction do
-      create_transaction('purchase')
+      create_transaction
       decrease_account_balance
-      decrease_products_quantity
+      decrease_products_quantity if genre == "purchase"
+      increase_receiver_balance if genre == 'transfer'
+      data[:transaction]
     end
+  rescue => e
+    raise ServiceError.new(e.message)
   end
-
-  def create_transfer
-    validate_transfer
-
-    sql_transaction do
-      create_transaction('transfer')
-      decrease_account_balance
-      increase_receiver_balance
-    end
-  end 
   
   private
-  
-  def validate_products
-    purchase_products = form.valid_purchases
-    
-    if purchase_products.nil?
-      @result = Result.new(status: 404, body: form.errors.full_messages)
-      raise ServiceHalt
-    else
-      data[:purchase_products] = purchase_products
-    end
+
+  def genre
+    params[:genre]
   end
 
-  def create_transaction(genre)
-    transaction = Transaction.create(account: @user.account, genre: genre)
-    
-    transaction.purchased_products_attributes = data[:purchase_products].map {|p| p.slice(:product_id, :quantity)} if transaction.genre == 'purchase'
-    if transaction.genre == 'transfer'
-      transaction.transfer_details_attributes = data[:transfers_detail].map {|t| t.slice(:receiver_id, :amount)} 
-    end
-
-
-    if transaction.save
-      data[:transaction] = transaction
-    else
-      @result = Result.new(status: 404, body: transaction.errors.full_messages)
-      raise ServiceHalt
-    end
+  def create_transaction
+    params[:account_id] = user.account_id
+    form =  TransactionForm.in_create(params)
+    data[:transaction] = form.submit!
   end
 
   def decrease_account_balance
@@ -70,29 +35,19 @@ class CreateTransaction < BaseService
   end
 
   def decrease_products_quantity
-    data[:purchase_products].each do |product_params|
-      product_params['product'].decrement!(:quantity, size = product_params['quantity'])
-    end
-
-    @result = Result.new(status: 201, body: data[:transaction])
-  end
-
-  def validate_transfer
-    transfers_detail = form.valid_transfers
-
-    if transfers_detail.nil?
-      @result = Result.new(status: 404, body: form.errors.full_messages)
-      raise ServiceHalt
-    else
-      data[:transfers_detail] = transfers_detail
+    purchased_products = data[:transaction].purchased_products
+    purchased_products.each do |purchased_product|
+      product = purchased_product.product
+      product.decrement!(:quantity, purchased_product.quantity)
     end
   end
 
   def increase_receiver_balance
-    data[:transfers_detail].each do |transfer|
-      transfer['receiver'].receive!(transfer['amount']) 
-    end
+    transfer_details = TransferDetail.includes(:receiver).where(transaction_id: data[:transaction].id).all
 
-    @result = Result.new(status: 201, body: data[:transaction])
+    transfer_details.each do |transfer_detail|
+      account = transfer_detail.receiver
+      account.increment!(:credit, transfer_detail.amount)
+    end
   end
 end

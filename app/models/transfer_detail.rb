@@ -10,4 +10,6 @@
 class TransferDetail < ApplicationRecord
   belongs_to :transfer, foreign_key: :transaction_id, class_name: 'Transaction'
   belongs_to :receiver, class_name: 'Account'
+
+  default_scope { includes(:receiver) }
 end

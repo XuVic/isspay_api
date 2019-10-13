@@ -17,6 +17,8 @@ require "rails/test_unit/railtie"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+FOLDERS =  %W(serializers forms validators decorators services supports)
+
 module IsspayApi
   extend Econfig::Shortcut
   Econfig.root = '.'
@@ -30,14 +32,9 @@ module IsspayApi
         resource '*', headers: :any, methods: [:get, :post, :options]
       end
     end
-    
-    config.cache_store = :redis_cache_store, { url: IsspayApi.config.REDIS_URL }
-    config.action_controller.perform_caching = true
 
-    config.session_store :cache_store, key: IsspayApi.config.APP_SESSION_KEY
-
-    config.autoload_paths += %W(#{config.root}/app/serializers #{config.root}/app/forms #{config.root}/app/validators #{config.root}/app/decorators #{config.root}/app/supports #{config.root}/app/services)
-    config.eager_load_paths += %W(#{config.root}/app/serializers #{config.root}/app/forms #{config.root}/app/validators #{config.root}/app/decorators #{config.root}/app/supports #{config.root}/app/services)
+    config.autoload_paths += FOLDERS.map { |f| Rails.root.join("app/#{f}") }
+    config.eager_load_paths += FOLDERS.map { |f| Rails.root.join("app/#{f}") }
     config.autoload_paths << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('lib')
 

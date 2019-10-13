@@ -4,50 +4,57 @@ class Api::V1::ProductsController < Api::V1::BaseController
 
   def create
     authorize! :create, Product, message: "You don't have right to build the product."
-    result = ProductForm.in_create(product_resource).submit
+    product = ProductForm.in_create(product_resource).submit!
     
-    respond_with result
-  end
-
-  def index
-    products = if query_params.empty? 
-      Product.all
-    else
-      relation = Product.find_by_category(query_params['category']) if query_params['category']
-      relation.all
-    end 
-
-    products.each do |product|
-      authorize! :index, product
-    end
-
-    respond_with Result.new(status: 200, body: products)
+    render_json JsonResponse.new(201, product, type: :resource)
   end
 
   def update
     authorize! :update, @targeted_resource, message: "You don't have right to modify the product."
-    result = ProductForm.in_update(@targeted_resource, attributes: product_params).submit
 
-    respond_with result
+    product = ProductForm.in_update(@targeted_resource, attributes: product_params).submit!
+    render_json JsonResponse.new(201, product, type: :resource)
   end
 
   def destroy
     authorize! :destroy, @targeted_resource, message: "You don't have right to modify the product."
 
-    message = "Product (#{resource_id}) cann't be deleted."
-    status = 422
-    if @targeted_resource.destroy
-      message = "Product (#{resource_id}) has been already deleted."
-      status = 200
-    end
+    json_response = [422, "Product (#{resource_id}) cann't be deleted."]
+    json_response = [200, "Product (#{resource_id}) has been already deleted."] if @targeted_resource.destroy
 
-    respond_with Result.new(status: status, body: message)
+    render_json JsonResponse.new(json_response[0], json_response[1], type: :message)
   end
 
+  def index
+    products = Product.scopes_chain(query_scopes)
+
+    products.each do |product|
+      authorize! :index, product, message: "You don't have right to read products."
+    end
+
+    render_json JsonResponse.new(200, products, type: :resource) 
+  end
+  
   private
 
+  def query_scopes
+    scopes = []
+    query_params.each do |k, v|
+      scope = ["#{k}_scope".to_sym, v]
+      scopes.append(scope)
+    end
+    scopes
+  end
+
   def query_params
-    params.permit(:category, :price, :quantity)
+    @query_params ||= sanitize_query(params.permit(:category, :price, :quantity))
+  end
+
+  def sanitize_query(query_params)
+    query_params[:category] = Category.where(name: query_params[:category]).first!.id if query_params[:category]
+    query_params[:price] = query_params[:price].split(':').map(&:to_i) if query_params[:price]
+    query_params[:quantity] = query_params[:quantity].split(':').map(&:to_i) if query_params[:quantity]
+    query_params
   end
 
   def sanitize_params

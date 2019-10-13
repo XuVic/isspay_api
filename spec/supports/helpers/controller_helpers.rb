@@ -23,12 +23,12 @@ module ControllerHelpers
 
   def create_token(user)
     auth_request(user)
-    response_data['access_token']
+    response_body['messages']['access_token']
   end
 
   def create_refresh_token(user)
     auth_request(user)
-    response_data['refresh_token']
+    response_body['messages']['refresh_token']
   end
 
   def response_body

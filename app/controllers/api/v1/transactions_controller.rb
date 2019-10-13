@@ -3,20 +3,21 @@ class Api::V1::TransactionsController < Api::V1::BaseController
 
   def index
     transactions.each { |t| authorize! :read, t }
-    respond_with Result.new(status: 200, body: transactions)
+    
+    render_json JsonResponse.new(200, transactions, type: :resource)
   end
 
   def create
-    result = CreateTransaction.new(current_user, create_form).call
+    transaction = CreateTransaction.new(current_user, transaction_params).call!
    
-    respond_with result
+    render_json JsonResponse.new(201, transaction, type: :resource)
   end
 
   def destroy
     authorize! :destroy, @targeted_resource
-    result = DeleteTransaction.new(current_user, @targeted_resource).call
+    transaction = DeleteTransaction.new(current_user, @targeted_resource).call!
     
-    respond_with result
+    render_json transaction
   end
 
   private
@@ -25,82 +26,60 @@ class Api::V1::TransactionsController < Api::V1::BaseController
     params.require(:transaction).require(:genre)
   end
 
-  def create_form
-    if genre == 'purchase'
-      TransactionForm.purchase_products(current_user, purchase_params)
-    elsif genre == 'transfer'
-      TransactionForm.transfer_money(current_user, transfer_params)
-    end
-  end
 
   def transactions
-    unless query_params.empty?
-      return @transactions ||= filter_transactions
-    end
-
-    @transactions ||= Transaction.where(account_id: current_user.account.id).all
-  end
-
-  def filter_transactions
-    transactions = Transaction.where(where_parameter)
-    transactions.send(query_params['state'].to_sym) if query_params['state']
+    return @transactions if @transactions
     
-    if query_params['amount']
-      min, max = query_params['amount']
-      max = Float::INFINITY if max.nil? 
-      transactions = transactions.select do |t|
-        t.amount >= min && t.amount <= max
+    @transactions ||= Transaction.scopes_chain(query_scopes)
+    
+    if query_params[:amount].present?
+      @transactions = @transactions.select do |t|
+        t.amount_range(query_params[:amount])
       end
     end
-    transactions
+
+    @transactions
+  end
+
+  def query_scopes
+    scopes = []
+    query_params.each do |k, v|
+      scope = ["#{k}_scope".to_sym, v]
+      scopes.append(scope) if k != 'amount'
+    end
+    scopes
   end
 
   def query_params
+    return @query_params if @query_params
+  
     sanitize_query_string
-    params.permit(:state, :since, account_ids: [], amount: [])
-  end
-
-  def where_parameter
-    query_params.slice('since', 'account_ids').keys.inject({}) do |result, key|
-      val = query_params[key]
-      if key == 'since'
-        result['created_at'] = Time.at(val)..Time.now
-      elsif key == 'account_ids'
-        result['account_id'] = val
-      end
-      result
-    end
+    @query_params ||= params.permit(:state, :since, :before, :genre, account_ids: [], amount: [])
   end
 
   def sanitize_query_string
-    return if @sanitized
-
+    params['account_ids'] = [current_user.account_id] if params['account_ids'].nil?
+    params['account_ids'].append(current_user.account_id) if params['account_ids'].is_a?(Array) && !params['account_ids'].include?(current_user.account_id)
     params['since'] = params['since'].to_i if params['since']
     params['amount'] = params['amount'].split(':').map(&:to_i) if params['amount']
-    @sanitized = true
   end
 
-  def sanitize_purchase_params
-    params[:purchases].each do |params|
-      params[:quantity] = params[:quantity].to_i
-      params
+  def transaction_params
+    sanitize_transaction_params
+    params.require(:transaction).permit(:genre, purchased_products_attributes: [:product_id, :quantity], transfer_details_attributes: [:receiver_id, :amount])
+  end
+
+  def sanitize_transaction_params
+    if params[:transaction][:purchased_products_attributes]
+      params[:transaction][:purchased_products_attributes].each do |purchase_param|
+        purchase_param[:quantity] = purchase_param[:quantity].to_i
+      end
     end
-  end
 
-  def purchase_params
-    sanitize_purchase_params
-    params.permit(purchases: [:product_id, :quantity]).require(:purchases)
-  end
-
-  def transfer_params
-    santiize_transfer_params
-    params.permit(transfers: [:receiver_id, :amount]).require(:transfers)
-  end
-
-  def santiize_transfer_params
-    params[:transfers].each do |params|
-      params[:amount] = params[:amount].to_i
-      params
+    if params[:transaction][:transfer_details_attributes]
+      params[:transaction][:transfer_details_attributes].each do |transfer_params|
+        transfer_params[:amount] = transfer_params[:amount].to_i
+      end
     end
   end
 end

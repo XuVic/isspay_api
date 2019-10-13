@@ -1,10 +1,17 @@
 module Api::Chatfuel
   class BaseController < ApplicationController
+    rescue_from CanCan::AccessDenied, with: :forbidden
+
     def current_user
       User.find_by_messenger_id(messenger_id)
     end
 
     private
+    def forbidden
+      message = ChatfuelJson::Response.new(messages: ['沒有權限'], messenger_id: messenger_id)
+      message.body_to(:text)
+      respond_with message
+    end
     
     def respond_with(body)
       response.status = 200

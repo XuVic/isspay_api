@@ -26,9 +26,11 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :account
 
   enum gender: %i[male female]
-  enum role: %i[master phd candidate staff alumni admin]
+  enum role: %i[master phd candidate staff alumni]
 
   delegate :credit, :debit, :balance, :orders, :transfers, :transactions, to: :account
+
+  default_scope { includes(:account) }
 
   before_create do
     skip_confirmation_notification!
@@ -56,8 +58,9 @@ class User < ApplicationRecord
     self.account.credit = amount
   end
 
-  def admin?
-    role == 'admin'
+  def set_admin
+    self.admin = true
+    self.save
   end
 
   def name

@@ -1,9 +1,9 @@
 module Api::V1::Users
   module Registration
     def create
-      result = UserForm.in_create(sign_up_resource).submit
+      user = UserForm.in_create(sign_up_resource).submit!
 
-      respond_with result
+      render_json JsonResponse.new(201, user, type: :resource)
     end
 
     private

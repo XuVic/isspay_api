@@ -21,7 +21,7 @@ FactoryBot.define do
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
     gender { Random.rand(2) }
-    email { Faker::Internet.email }
+    email { Faker::Internet.user_name + '@iss.nthu.edu.tw' }
     password { 'abcd1234' }
     password_confirmation { 'abcd1234' }
     nick_name { Faker::FunnyName.name }
@@ -29,7 +29,7 @@ FactoryBot.define do
     messenger_id { Faker::Internet.password(10) }
 
     trait :admin do
-      role { 5 }
+      admin { true }
     end
   end
 end

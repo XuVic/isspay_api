@@ -1,20 +1,28 @@
 module ErrorsHandler
   extend ActiveSupport::Concern
 
-  def unauthorized(expectation)
-    respond_with_expectation(expectation, 401)
+  def unauthorized(e)
+    render_json error_response(403, [e.message])
   end
 
-  def forbidden(expectation)
-    respond_with_expectation(expectation, 403)
+  def forbidden(e)
+    render_json error_response(403, [e.message])
   end
 
-  def bad_request(expectation)
-    respond_with_expectation(expectation, 400)
+  def bad_request(e)
+    render_json error_response(400, [e.message])
   end
 
-  def not_found(expectation)
-    respond_with_expectation(expectation, 404)
+  def not_found(e)
+    render_json error_response(404, [e.message])
+  end
+
+  def form_invalid(e)
+    render_json error_response(406, e.errors)
+  end
+
+  def error_response(status, errors)
+    JsonResponse.new(status, errors, type: :error)
   end
 
   def respond_with_expectation(expectation, status)

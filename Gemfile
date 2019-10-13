@@ -3,8 +3,9 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.5.1'
 
+gem 'nokogiri', '~> 1.10.4'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.2.3'
+gem 'rails', '~> 5.2.3', git: 'https://github.com/rails/rails.git', branch: '5-2-stable'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 # Use Puma as the app server
@@ -68,6 +69,7 @@ group :development, :test do
   gem 'rails-controller-testing', '~> 1.0', '>= 1.0.4'
   gem 'database_cleaner', '~> 1.7'
   gem 'mailcatcher'
+  gem 'rack-mini-profiler', require: false
 end
 
 group :development do

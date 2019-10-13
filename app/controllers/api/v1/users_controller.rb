@@ -6,11 +6,14 @@ class Api::V1::UsersController < Api::V1::BaseController
 
   def confirmation
     user = User.confirm_by_token(confirmation_token)
-    result = Result.new(status: 400, body: 'Confirmation token is invalid.')
-  
-    result = Result.new(status: 200, body: 'Account is confirmed successfully.') if user.confirmed?
 
-    respond_with result
+    json_response = if user.confirmed?
+      JsonResponse.new(200, 'Account is confirmed successfully.', type: :message)
+    else
+      JsonResponse.new(400, ['Confirmation token is invalid.'], type: :error)
+    end
+
+    render_json json_response
   end
 
   def confirmation_token

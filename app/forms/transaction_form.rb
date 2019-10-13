@@ -1,125 +1,59 @@
 class TransactionForm < BaseForm
-  attr_reader :user, :params, :context, :products
+  alias params resource
 
-  class << self
-    def purchase_products(user , purchase_params)
-      purchase_params.sort_by! { |p| p['product_id'] }
-      self.new(user, purchase_params, :purchase)
-    end
-  
-    def transfer_money(user, transfer_params)
-      transfer_params.sort_by! { |t| t['receiver_id'] }
-      self.new(user, transfer_params, :transfer)
-    end
-  end
-
-  def initialize(user, params, context)
-    @user = user
-    @params = params
-    @context = context
-  end
-
-  def valid_purchases
-    purchase_products if valid?
-  end
-
-  def valid_transfers
-    transfer_receivers if valid?
-  end
-
-  def valid?
-    if purchase?
-      purchase_validation
-    elsif transfer?
-      transfer_validation
-    end
-    errors.full_messages.empty?
+  def submit!
+    raise FormInvalid.new(errors) unless valid?
+    t = Transaction.create!(genre: params[:genre], account_id: params[:account_id])
+    t.purchased_products_attributes = params[:purchased_products_attributes] if params[:purchased_products_attributes]
+    t.transfer_details_attributes = params[:transfer_details_attributes] if params[:transfer_details_attributes]
+    t if t.save!
   end
 
   def purchase_validation
-    errors.add(:base, :not_found, message: "Product (#{missing_products}) cannot be found") if missing_products.present?
-    errors.add(:base, :insufficient_inventory, message: insufficient_inventory) if insufficient_inventory.present?
+    @purchase_errors = Hash.new([])
+    validate_products(params[:purchased_products_attributes]) if params[:purchased_products_attributes].present?
+    errors.add(:base, :blank_purchase, message: "Purchased product should not be empty.") unless params[:purchased_products_attributes].present?
+    errors.add(:base, :not_found, message: "Products (#{@purchase_errors[:missing]}) cannot be found") if @purchase_errors[:missing].present?
+    errors.add(:base, :insufficient_products, message: "Products (#{@purchase_errors[:insufficient]}) are insufficient.") if @purchase_errors[:insufficient].present?
   end
 
   def transfer_validation
-    errors.add(:base, :not_found, message: "Receiver (#{missing_receivers}) cannot be found") if missing_receivers.present?
-    errors.add(:base, :amount_negative, message: 'Transfer amount should be positive') if amount_negative?
+    @transfer_errors = Hash.new([])
+    validate_transfers(params[:transfer_details_attributes]) if params[:transfer_details_attributes].present?
+    errors.add(:base, :blank_transfer, message: "Transfer detail should not be empty.") unless params[:transfer_details_attributes].present?
+    errors.add(:base, :not_found, message: "Receivers (#{@transfer_errors[:missing]}) cannot be found") if @transfer_errors[:missing].present?
+    errors.add(:base, :negative_amount, message: "Receivers (#{@transfer_errors[:negative]}) cannot be transfer with negative amount.") if @transfer_errors[:negative].present?
   end
 
-  def insufficient_inventory
-    messages = []
-    purchase_products.each do |product_params|
-      p = product_params['product']
-      messages << "#{p.name} out of stock" if p.quantity <= product_params['quantity']
+  def valid?
+    errors.add(:base, :genre_not_blank, message: "Genre cannnot be blank") unless params[:genre].present?
+    purchase_validation if genre == 'purchase'
+    transfer_validation if genre == 'transfer'
+    errors.full_messages.empty?
+  end
+
+  private
+
+  def genre
+    params[:genre]
+  end
+
+  def validate_products(purchased_products)
+    purchased_products.each do |purchase|
+      product = Product.where(id: purchase[:product_id]).first
+      if product
+        @purchase_errors[:insufficient].append(purchase[:product_id]) if product.quantity < purchase[:quantity]
+      else
+        @purchase_errors[:missing].append(purchase[:product_id])
+      end
     end
-    messages.join(',')
   end
 
-  def amount_negative?
-    transfer_params.each do |t|
-      return true if t['amount'].negative?
+  def validate_transfers(transfer_details)
+    transfer_details.each do |transfer_detail|
+      account = Account.where(id: transfer_detail[:receiver_id]).first
+      @transfer_errors[:missing].append(transfer_detail[:receiver_id]) unless account
+      @transfer_errors[:negative].append(transfer_detail[:receiver_id]) if transfer_detail[:amount].negative?
     end
-
-    false
-  end
-
-  def missing_products
-    product_ids = purchase_params.map {|p| p['product_id']}
-    miss_products = product_ids - products.map(&:id)
-
-    miss_products.join(',')
-  end
-
-  def missing_receivers
-    receiver_ids = transfer_params.map {|t| t['receiver_id']}
-    missing_receivers = receiver_ids - receivers.map(&:id)
-    
-    missing_receivers.join(',')
-  end
-
-  def products
-    product_ids = purchase_params.map {|p| p['product_id']}
-    @products ||= Product.where(id: product_ids).order('id').all
-  end
-
-  def receivers
-    receiver_ids = transfer_params.map {|t| t['receiver_id']}
-    @receivers ||= Account.where(id: receiver_ids).order('id').all
-  end
-
-  def purchase_products
-    return @purchase_prodcuts if @purchase_prodcuts
-
-    @purchase_prodcuts = []
-    purchase_params.each_with_index do |param, i|
-      param['product'] = products[i]
-      @purchase_prodcuts << param
-    end
-    @purchase_prodcuts
-  end
-
-  def transfer_receivers
-    transfer_receivers = []
-    transfer_params.each_with_index do |param, i|
-      param['receiver'] = receivers[i]
-      transfer_receivers << param
-    end
-    transfer_receivers
-  end
-
-  def transfer_params
-    return params if transfer?
-  end
-
-  def purchase_params
-    return params if purchase?
-  end
-
-  def purchase?
-    context == :purchase
-  end
-
-  def transfer?
-    context == :transfer
   end
 end

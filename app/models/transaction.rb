@@ -27,6 +27,13 @@ class Transaction < ApplicationRecord
 
   delegate :owner, to: :account
 
+  default_scope { includes(:purchased_products, :transfer_details) }
+  scope :since_scope, -> (date) { where(["created_at >= ?", date]) }
+  scope :before_scope, -> (date) { where(["created_at <= ?", date]) }
+  scope :genre_scope, -> (genre) { where(genre: genre) }
+  scope :state_scope, -> (state) { where(state: state) }
+  scope :account_ids_scope, -> (account_ids) { where(["account_id IN (?)", account_ids]) }
+
   aasm column: :state, enum: true do
     state :unpaid, initial: true
     state :canceled, :paid
@@ -34,6 +41,12 @@ class Transaction < ApplicationRecord
     event :pay do
       transitions from: :unpaid, to: :paid
     end
+  end
+
+  def amount_range(range)
+    min = range[0] || -Float::INFINITY
+    max = range[1] || Float::INFINITY  
+    amount >= min && amount <= max
   end
 
   def product_names
@@ -51,7 +64,7 @@ class Transaction < ApplicationRecord
       transfer_details.reduce(0) { |s, t| s + t.amount }
     end
   end
-
+  
   def purchase?
     genre == 'purchase'
   end

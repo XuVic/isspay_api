@@ -4,14 +4,24 @@ class BaseForm
 
   attr_reader :resource, :options
   
+
+  class FormInvalid < StandardError
+    attr_reader :errors
+    def initialize(errors)
+      @errors = errors
+      super('Submit data is invalid.')
+    end
+  end
+
   class << self
-    def in_create(resource, options)
+    def in_create(resource, options = {})
       options.merge!(context: :create)
       new(resource, options)
     end
   
-    def in_update(resource, options)
+    def in_update(resource, options = {})
       options.merge!(context: :update)
+      resource.assign_attributes(options[:attributes])
       new(resource, options)
     end
   end
@@ -35,13 +45,14 @@ class BaseForm
     end
   end
 
+  def submit!
+    raise FormInvalid.new(errors) unless valid?
+
+    resource if resource.save!
+  end
+
   def target_resource
-    if update?
-      model_name = @resource.model_name.to_s
-      model_name.constantize.new(attributes)
-    elsif create?
-      resource 
-    end
+    resource
   end
 
   def attributes

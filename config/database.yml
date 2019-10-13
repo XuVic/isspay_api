@@ -24,4 +24,5 @@ test:
 
 production:
   <<: *default
+  host: <%= ENV.fetch("DB_HOST", '127.0.0.1') %>
   database: iss_pay
