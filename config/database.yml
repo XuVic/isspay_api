@@ -10,6 +10,7 @@ default: &default
   username: iss_pay
   password: iss_pay
   timeout: 5000
+  host: <%= ENV.fetch("DB_HOST", '127.0.0.1') %>
 
 development:
   <<: *default
@@ -24,5 +25,4 @@ test:
 
 production:
   <<: *default
-  host: <%= ENV.fetch("DB_HOST", '127.0.0.1') %>
   database: iss_pay

@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  web:
+    image: 'isspay_api:v1'
+    command: ''
+    networks:
+      - "isspay-net"
+    environment:
+      DB_HOST: "${DB_HOST}"
+    depends_on:
+      - db
+    volumes:
+      - /tmp/sockets:/app/tmp/sockets
+  db:
+    container_name: "${DB_HOST}"
+    image: 'postgres:latest'
+    networks:
+      - 'isspay-net'
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWD}"
+    volumes:
+      - "pg-db:/var/lib/postgresql/data"
+
+  web_server:
+    image: 'nginx:latest'
+    ports:
+      - "3000:3000"
+    networks:
+      - "isspay-net"
+    volumes:
+      - /etc/nginx/conf.d:/etc/nginx/conf.d
+      - /tmp/sockets:/app/tmp/sockets
+    depends_on:
+      - web
+networks:
+  isspay-net:
+volumes:
+  pg-db:

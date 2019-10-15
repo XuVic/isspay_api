@@ -10,7 +10,7 @@ Rails.describe Api::Chatfuel::TransactionsController, type: :request do
 
     context 'when purchase a product' do
       let(:product) { create(:product, :snack) }
-      let(:query_str) { "user[messenger_id]=#{messenger_id}&purchases[][product_id]=#{product.id}&purchases[][quantity]=1&transaction[genre]=purchase" }
+      let(:query_str) { "user[messenger_id]=#{messenger_id}&transaction[purchased_products_attributes][][product_id]=#{product.id}&transaction[purchased_products_attributes][][quantity]=1&transaction[genre]=purchase" }
       let(:template) { Hash.symbolize(transaction_reply) }  
       context 'and messenger_id is correct' do
         let!(:send_request) { get "#{endpoint}?#{query_str}" }
@@ -25,7 +25,7 @@ Rails.describe Api::Chatfuel::TransactionsController, type: :request do
       let(:giver) { create(:user) }
       let(:giver_messenger_id) { giver.messenger_id }
       let(:receiver) { create(:user) }
-      let(:query_str) { "user[messenger_id]=#{giver_messenger_id}&transfers[][receiver_id]=#{receiver.account.id}&transfers[][amount]=100&transaction[genre]=transfer" }
+      let(:query_str) { "user[messenger_id]=#{giver_messenger_id}&transaction[transfer_details_attributes][][receiver_id]=#{receiver.account.id}&transaction[transfer_details_attributes][][amount]=100&transaction[genre]=transfer" }
       let!(:send_request) { get "#{endpoint}?#{query_str}" }
 
       it { expect(response_status).to eq 200 }
@@ -34,15 +34,15 @@ Rails.describe Api::Chatfuel::TransactionsController, type: :request do
     end
   end
 
-  # describe '#destroy' do
-  #   before :all do
-  #     @user = User.find_by_messenger_id(@messenger_id)
-  #     @transaction = @user.order([@product], allowed: true)
-  #     get "/api/chatfuel/delete_transaction/#{@transaction.id}?user[messenger_id]=#{@messenger_id}"
-  #   end
+  describe '#destroy' do
+    before :all do
+      @user = User.find_by_messenger_id(@messenger_id)
+      @transaction = @user.order([@product], allowed: true)
+      get "/api/chatfuel/delete_transaction/#{@transaction.id}?user[messenger_id]=#{@messenger_id}"
+    end
 
-  #   it { expect(response.status).to eq 200 }
-  #   it { expect(User.find(@user.id).balance).to eq @transaction.amount + @user.balance }
-  #   it { expect(response.body).to include "#{User.find(@user.id).balance.abs}" }
-  # end
+    it { expect(response.status).to eq 200 }
+    it { expect(User.find(@user.id).balance).to eq @transaction.amount + @user.balance }
+    it { expect(response.body).to include "#{User.find(@user.id).balance.abs}" }
+  end
 end

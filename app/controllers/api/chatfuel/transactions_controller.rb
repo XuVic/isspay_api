@@ -1,17 +1,12 @@
 module Api::Chatfuel
   class TransactionsController < BaseController
-    prepend_before_action :sanitize_params, only: :create
     before_action :find_transaction, only: %i(destroy)
 
-
     def create
-      result = CreateTransaction.new(current_user, create_form).call
-
-      if result.success?
-        message = ChatfuelJson::Response.new(resources: [result.body], messenger_id: messenger_id)
-        message.body_to(:receipt_reply, result.body)
-        respond_with message
-      end
+      transaction = CreateTransaction.new(current_user, transaction_params).call!
+      message = ChatfuelJson::Serializer.new(messenger_id)
+      message.set_msg_body(:receipt_reply, transaction)
+      respond_with message
     end
 
     def destroy
@@ -22,8 +17,8 @@ module Api::Chatfuel
       
       @transaction.destroy!
 
-      message = ChatfuelJson::Response.new(messages: [message])
-      message.body_to(:text)
+      message = ChatfuelJson::Serializer.new(messenger_id)
+      message.set_msg_body(:text, [message])
       render_json message
     end
 
@@ -31,26 +26,6 @@ module Api::Chatfuel
 
     def genre
       params.require(:transaction).require(:genre)
-    end
-  
-    def create_form
-      if genre == 'purchase'
-        TransactionForm.purchase_products(current_user, purchase_params)
-      elsif genre == 'transfer'
-        TransactionForm.transfer_money(current_user, transfer_params)
-      end
-    end
-
-    def sanitize_purchase_params
-      params[:purchases].each do |params|
-        params[:quantity] = params[:quantity].to_i
-        params
-      end
-    end
-
-    def purchase_params
-      sanitize_purchase_params
-      params.permit(purchases: [:product_id, :quantity]).require(:purchases)
     end
 
     def transaction_id
@@ -61,15 +36,22 @@ module Api::Chatfuel
       @transaction = Transaction.find(transaction_id)
     end
 
-    def transfer_params
-      santiize_transfer_params
-      params.permit(transfers: [:receiver_id, :amount]).require(:transfers)
+    def transaction_params
+      sanitize_transaction_params
+      params.require(:transaction).permit(:genre, purchased_products_attributes: [:product_id, :quantity], transfer_details_attributes: [:receiver_id, :amount])
     end
   
-    def santiize_transfer_params
-      params[:transfers].each do |params|
-        params[:amount] = params[:amount].to_i
-        params
+    def sanitize_transaction_params
+      if params[:transaction][:purchased_products_attributes]
+        params[:transaction][:purchased_products_attributes].each do |purchase_param|
+          purchase_param[:quantity] = purchase_param[:quantity].to_i
+        end
+      end
+  
+      if params[:transaction][:transfer_details_attributes]
+        params[:transaction][:transfer_details_attributes].each do |transfer_params|
+          transfer_params[:amount] = transfer_params[:amount].to_i
+        end
       end
     end
   end

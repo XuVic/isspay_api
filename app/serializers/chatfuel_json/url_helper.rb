@@ -2,21 +2,27 @@ module ChatfuelJson
   module UrlHelper
     def products_url(category, page = 1)
       query_string = "product[category]=#{category}&user[messenger_id]=#{messenger_id}&page=#{page}"
-      "#{IsspayApi.config.API_URL}/api/chatfuel/products?#{query_string}"
+      "#{chatfuel_url}/products?#{query_string}"
     end
 
     def destroy_transaction_url(transaction)
       query_string = "user[messenger_id]=#{messenger_id}"
-      "#{IsspayApi.config.API_URL}/api/chatfuel/delete_transaction/#{transaction.id}?#{query_string}"
+      "#{chatfuel_url}/delete_transaction/#{transaction.id}?#{query_string}"
     end
 
     def purchase_url(product)
-      "#{IsspayApi.config.API_URL}/api/chatfuel/create_transaction?" + 
+      "#{chatfuel_url}/api/chatfuel/create_transaction?" \
       "user[messenger_id]=#{messenger_id}&products[][id]=#{product.id}&products[][quantity]=1"
     end
 
     def repayment_url
-      "#{IsspayApi.config.API_URL}/api/chatfuel/repayment/#{messenger_id}"
+      "#{chatfuel_url}/repayment/#{messenger_id}"
+    end
+
+    private
+
+    def chatfuel_url
+      "#{IsspayApi.config.API_URL}/api/chatfuel"
     end
   end
 end

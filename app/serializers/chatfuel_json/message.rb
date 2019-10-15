@@ -1,6 +1,6 @@
 module ChatfuelJson
   module Message
-    def text
+    def text(messages)
       messages.map do |msg|
         { text: msg }
       end
@@ -37,14 +37,14 @@ module ChatfuelJson
       replies << quick_reply('還要喝', url: products_url('drink'))
       replies << quick_reply('取消購買', url: destroy_transaction_url(transaction))
 
-      message = { text: text, quick_replies: replies }
+      { text: text, quick_replies: replies }
     end
 
     def transfer_receipt(transaction)
       text = "成功轉帳給 #{transaction.receiver_names.join(';')}，" \
       "總金額為 #{transaction.amount}"
       replies = [ quick_reply('取消轉帳', url: destroy_transaction_url(transaction)) ]
-      messages = { text: text, quick_replies: replies }
+      { text: text, quick_replies: replies }
     end
 
     def balance_message

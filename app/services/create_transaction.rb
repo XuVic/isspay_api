@@ -31,7 +31,7 @@ class CreateTransaction < BaseService
   end
 
   def decrease_account_balance
-    user.account.pay!(data[:transaction].amount)
+    data[:transaction].account.pay!(data[:transaction].amount)
   end
 
   def decrease_products_quantity
@@ -43,7 +43,7 @@ class CreateTransaction < BaseService
   end
 
   def increase_receiver_balance
-    transfer_details = TransferDetail.includes(:receiver).where(transaction_id: data[:transaction].id).all
+    transfer_details = data[:transaction].transfer_details
 
     transfer_details.each do |transfer_detail|
       account = transfer_detail.receiver
