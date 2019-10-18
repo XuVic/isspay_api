@@ -1,0 +1,21 @@
+ARG RUBY_VERSION=2.5.1
+ARG BUNDLER=2.0.2
+FROM ruby:${RUBY_VERSION}-alpine
+
+RUN apk update
+RUN apk add ruby-dev libpq postgresql-dev dpkg-dev g++ gcc make patch ca-certificates \
+            nodejs libsodium-dev libc6-compat libc-dev zlib-dev zlib
+
+ENV WORKDIR_PATH=/app
+RUN mkdir $WORKDIR_PATH
+WORKDIR $WORKDIR_PATH
+
+RUN gem update bundler
+ENV BUNDLER_VERSION=${BUNDLER}
+
+ONBUILD COPY ./Gemfile /app 
+ONBUILD COPY ./Gemfile.lock /app
+ONBUILD COPY . /app/
+
+ENTRYPOINT ["bundle", "exec"]
+CMD ["puma", "-C", "/config/puma.rb"]

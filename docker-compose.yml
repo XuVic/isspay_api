@@ -3,7 +3,6 @@ version: "3.7"
 services:
   web:
     image: 'isspay_api:v1'
-    command: ''
     networks:
       - "isspay-net"
     environment:
@@ -22,7 +21,6 @@ services:
       POSTGRES_PASSWORD: "${DB_PASSWD}"
     volumes:
       - "pg-db:/var/lib/postgresql/data"
-
   web_server:
     image: 'nginx:latest'
     ports:

@@ -1,3 +1,5 @@
-FROM ruby-2.5.1:vicxu
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 
-ENTRYPOINT bundle exec puma -b unix:///app/tmp/sockets/puma.sock
+RUN bundle install
+CMD ["puma", "-C", "/config/puma.rb"]
