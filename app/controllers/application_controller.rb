@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Metal
   include CanCan::ControllerAdditions
   include ActionController::ConditionalGet
   include ErrorsHandler
+  include Sanitizer
 
   def current_ability
     @_current_ability ||= Abilities::Ability.new(current_user)
