@@ -8,15 +8,16 @@ module Api::Chatfuel
       render_msg type: :text, msg: msg
     end
 
-    def update
-      record = UserForm.in_update(current_user, attributes: update_params).submit!
-
-      render_msg type: :text, msg: ['個人資料已更新!']
+    def set_admin
+      current_user.set_admin!(admin_param)
+      verb = admin_param ? '成為' : '註銷'
+      render_msg type: :text, msg: ["#{current_user.first_name} #{verb} Admin."]
     end
 
     private
-    def update_params
-      params.require(:user).permit(:first_name, :last_name, :nick_name, :gender, :role, :admin)
+
+    def admin_param
+      params[:user][:admin].downcase == 'false' ? false : true
     end
 
     def sign_up_params

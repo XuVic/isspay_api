@@ -58,8 +58,8 @@ class User < ApplicationRecord
     self.account.credit = amount
   end
 
-  def set_admin!
-    self.admin = true
+  def set_admin!(is_admin)
+    self.admin = is_admin
     self.save!
   end
 

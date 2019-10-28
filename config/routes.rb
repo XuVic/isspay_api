@@ -36,7 +36,11 @@ Rails.application.routes.draw do
       get 'repayment', to: 'accounts#repay'
 
     
-      resources :users, only: %i[create update]
+      resources :users, only: %i[create] do
+        collection do
+          post 'set_admin', to: 'users#set_admin'
+        end
+      end
       resources :products, only: %i[index]
     end
   end

@@ -35,14 +35,21 @@ Rails.describe Api::Chatfuel::UsersController, type: :request do
     end
   end
 
-  describe "#update" do
+  describe "#set_admin" do
     let(:user) { create(:user, admin: false) }
-    let(:endpoint) { "/api/chatfuel/users/#{user.messenger_id}" }
+    let(:endpoint) { "/api/chatfuel/users/set_admin" }
     context 'set user as admin' do
-      let(:params) { { admin: true } }
-      let!(:send_request) { put endpoint, params: { user: params } }
+      let(:params) { { messenger_id: user.messenger_id, admin: true } }
+      let!(:send_request) { post endpoint, params: { user: params } }
       
       it { expect(User.find(user.id).admin?).to be true }
+    end
+
+    context 'cancel admin' do
+      let(:params) { { messenger_id: user.messenger_id, admin: 'false' } }
+      let!(:send_request) { post endpoint, params: { user: params } }
+      
+      it { expect(User.find(user.id).admin?).to be false }
     end
   end
 
