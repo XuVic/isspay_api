@@ -1,6 +1,7 @@
 module Api::Chatfuel
   class BaseController < ApplicationController
     rescue_from CanCan::AccessDenied, with: :forbidden
+    rescue_from Form::InputInvalid, with: :form_invalid
     
     def current_user
       User.find_by_messenger_id(messenger_id)
@@ -9,6 +10,10 @@ module Api::Chatfuel
     private
     def forbidden
       render_msg type: :text, msg: ['沒有權限']
+    end
+
+    def form_invalid(e)
+      render_msg type: :text, msg: e.error_msg
     end
 
     def render_msg(type:, msg:)

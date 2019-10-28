@@ -1,4 +1,4 @@
-class TransactionForm < BaseForm
+class TransactionForm < Form
   alias params resource
 
   def submit!

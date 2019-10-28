@@ -11,7 +11,7 @@ Rails.application.configure do
     domain: 'localhost.localdomain',
   }
   config.active_job.queue_adapter = :inline
-  
+  config.hosts << IsspayApi.config[:API_URL].split('//').last
   # config.cache_classes = false
 
   # Do not eager load code on boot.

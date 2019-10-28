@@ -1,4 +1,4 @@
-class LoginForm < BaseForm
+class LoginForm < Form
   delegate :email, :password, to: :target_resource 
 
   def initialize(resource)

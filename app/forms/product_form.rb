@@ -1,4 +1,4 @@
-class ProductForm < BaseForm
+class ProductForm < Form
   
   delegate :name, :price, :quantity, :image_url, :category_id, to: :target_resource
 

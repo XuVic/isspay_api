@@ -3,11 +3,11 @@ default: &default
 
 development:
   <<: *default
-  API_URL: 'http://e5f8dfc4.ngrok.io'
+  API_URL: http://e298dc41.ngrok.io
 
 test:
   <<: *default
-  API_URL: 'https://localhost'
+  API_URL: http://e298dc41.ngrok.io
 
 production:
   REDIS_URL: 'redis://127.0.0.1:6379/1'

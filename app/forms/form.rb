@@ -1,14 +1,15 @@
-class BaseForm
+class Form
   include ActiveModel::Validations
   include ActiveSupport::Configurable
 
   attr_reader :resource, :options
   
 
-  class FormInvalid < StandardError
-    attr_reader :errors
+  class InputInvalid < StandardError
+    attr_reader :errors, :error_msg
     def initialize(errors)
       @errors = errors
+      @error_msg = errors.full_messages.uniq
       super('Submit data is invalid.')
     end
   end
@@ -46,7 +47,7 @@ class BaseForm
   end
 
   def submit!
-    raise FormInvalid.new(errors) unless valid?
+    raise InputInvalid.new(errors) unless valid?
 
     resource if resource.save!
   end
