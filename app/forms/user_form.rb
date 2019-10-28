@@ -6,7 +6,7 @@ class UserForm < BaseForm
            to: :target_resource
 
   def self.in_create(resource, options = {})
-    validates :email, presence: true, uniqueness: true, format: VALID_EMAIL_REGEX, iss_mail: true
+    validates :email, presence: true, uniqueness: true, format: VALID_EMAIL_REGEX
     validates :password, presence: true, confirmation: true
     validates :password_confirmation, presence: true
     validates :role, presence: true

@@ -1,4 +1,4 @@
-class BaseService
+class Service
 
   class NoImplementError < StandardError; end
   class ServiceHalt < StandardError; end
@@ -10,15 +10,17 @@ class BaseService
 
   attr_reader :user, :data
 
-  def initialize(user = nil, data = {})
+  def initialize(user: nil, data: {}, params: )
     @user = user
-    @data = data
+    @data = data.merge({params: params})
   end
 
-  def call
-    raise NoImplementError unless @result
-  
-    @result
+  def call!
+    raise NoImplementError
+  end
+
+  def params
+    data[:params]
   end
 
   def sql_transaction(&block)

@@ -1,15 +1,11 @@
 module Api::Chatfuel
   class UsersController < BaseController
     def create
-      result = CreateUser.new(sign_up_params).call
+      record = CreateUser.new(params: sign_up_params).call!
       
-      msg = result.error_messages if result.failure?
+      msg = ["恭喜 #{record.name}，成功註冊 IssPay～～", "請到 #{record.email} 信箱收取驗證信"]
 
-      msg = ["恭喜 #{result.body.name}，成功註冊 IssPay～～", "請到 #{result.body.email} 信箱收取驗證信"] if result.success?
-
-      message = ChatfuelJson::Response.new(messages: msg, messenger_id: messenger_id)
-      message.body_to(:text)
-      respond_with message
+      render_msg type: :text, msg: msg
     end
 
     private

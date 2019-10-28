@@ -11,7 +11,7 @@ module ChatfuelJson
       @body = ''
     end
 
-    def to_message
+    def to_json
       {
         messages: body
       }.to_json
@@ -19,9 +19,9 @@ module ChatfuelJson
 
     def set_msg_body(method, *params)
       if params.nil?
-        body = self.send(method)
+        @body = self.send(method)
       else
-        body = self.send(method, *params)
+        @body = self.send(method, *params)
       end
     end
   end

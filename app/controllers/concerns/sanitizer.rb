@@ -1,4 +1,7 @@
 module Sanitizer
+  class NotFoundRule < StandardError
+  end
+  
   extend ActiveSupport::Concern
 
   class RuleCollection < SimpleDelegator
@@ -6,14 +9,33 @@ module Sanitizer
       super({})
     end
 
-    def sanitize(key, value)
-      return self[key.to_sym].call(value) if has_rule?(key)
-      value
+    def sanitize(key, value, action)
+      if has_rule?(key.to_sym)
+        proc = find_proc(key.to_sym, action.to_sym)
+        proc.call(value)
+      else
+        value
+      end
     end
 
-    def clean(key, options)
-      rule = options[:with]
-      self[key] = make_proc(rule)
+    def clean(key, rules)
+      self[key] = get_procs(rules)
+    end
+
+    def find_proc(key, action)
+      rules = self[key]
+      
+
+      rules.has_key?(action) ? rules[:action] : rules[:with]
+    end
+
+    def get_procs(rules)
+      raise NotFoundRule if rules.empty?
+
+      rules.each do |k, v|
+        rules[k] = make_proc(v)
+      end
+      return rules
     end
 
     def make_proc(rule)
@@ -25,8 +47,6 @@ module Sanitizer
     def default_proc(sym)
       -> (val) { val.send(sym.to_sym) }
     end
-
-    private
 
     def has_rule?(key)
       self.has_key?(key.to_sym)
@@ -51,12 +71,14 @@ module Sanitizer
       if hashable?(v)
         params[k] = self.sanitize(v)
       else
-        params[k] = sanitize_rules.sanitize(k, v)
+        params[k] = sanitize_rules.sanitize(k, v, action(params))
       end
     end
   end
 
-  private
+  def action(params)
+    params[:action]
+  end
 
   def sanitize_rules
     self.class.rules

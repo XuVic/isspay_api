@@ -1,4 +1,4 @@
-class CreateTransaction < BaseService
+class CreateTransaction < Service
   attr_reader :params
 
   def initialize(user, params)

@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe MailerJob, type: :job do
   include ActiveJob::TestHelper
   
-  subject(:user) { create(:user) }
-  let(:args) { { mailer: 'Notifier', action: 'confirmation', args: [user.id]  } }
+  subject(:user) { create(:user, password: 'abcd4325', password_confirmation: 'abcd4325') }
+  let(:args) { { mailer: 'Notifier', action: 'confirmation', args: [Marshal.dump(user), 'abcd4325']  } }
   subject(:job) { described_class.perform_later(args) }
 
   it 'enqueue jobs' do

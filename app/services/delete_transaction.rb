@@ -1,4 +1,4 @@
-class DeleteTransaction < BaseService
+class DeleteTransaction < Service
   attr_reader :transaction
 
   def initialize(user, transaction)
@@ -14,7 +14,7 @@ class DeleteTransaction < BaseService
       balance_increment
       destroy_transaction
     end
-  rescue <= e
+  rescue => e
     raise ServiceError.new(e.message)
   end
 

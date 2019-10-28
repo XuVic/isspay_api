@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '2.5.1'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.2.3', git: 'https://github.com/rails/rails.git', branch: '5-2-stable'
+gem 'rails', '~> 6.0'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 # Use Puma as the app server
@@ -31,7 +31,7 @@ gem 'bootsnap', '>= 1.1.0', require: false
 # Database Adapter
 gem 'pg', '~> 1.1', '>= 1.1.4'
 # Authentication
-gem 'devise', '~> 4.6', '>= 4.6.2'
+gem 'devise', '~> 4.7', '>= 4.7.1'
 # Code style formatter
 gem 'rubocop', '~> 0.72.0'
 # Model serializer
@@ -55,7 +55,7 @@ gem 'rack-cors', '~> 1.0', '>= 1.0.3'
 gem 'responders', '~> 3.0'
 gem 'compass-rails', github: 'Compass/compass-rails'
 gem 'sprockets-rails', '~> 3.2', '>= 3.2.1'
-gem 'railties', '~> 5.2.3'
+gem 'railties', '~> 6.0.0'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
