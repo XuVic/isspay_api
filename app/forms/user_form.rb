@@ -13,7 +13,7 @@ class UserForm < Form
     validates :gender, presence: true
     validates :first_name, presence: true
     validates :last_name, presence: true
-    validates :messenger_id, uniqueness: true
+    validates :messenger_id, uniqueness: true, presence: true
     super(resource, options)
   end
 end

@@ -13,7 +13,7 @@ module Api::Chatfuel
     end
 
     def form_invalid(e)
-      render_msg type: :text, msg: e.error_msg
+      render_msg type: :text, msg: e.error_msgs
     end
 
     def render_msg(type:, msg:)

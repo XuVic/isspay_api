@@ -6,10 +6,10 @@ class Form
   
 
   class InputInvalid < StandardError
-    attr_reader :errors, :error_msg
+    attr_reader :errors, :error_msgs
     def initialize(errors)
       @errors = errors
-      @error_msg = errors.full_messages.uniq
+      @error_msgs = errors.full_messages.uniq
       super('Submit data is invalid.')
     end
   end

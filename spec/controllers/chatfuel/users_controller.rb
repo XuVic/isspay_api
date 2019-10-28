@@ -25,13 +25,14 @@ Rails.describe Api::Chatfuel::UsersController, type: :request do
       it { expect(response_body['messages']).not_to be_empty }
     end
 
-    # context 'when email is not iss mail' do
-    #   let(:params) { attributes_for(:user, email: 'test@error.com').tap { |u| u.delete(:password); u.delete(:password_confirmation) }  }
-    #   let!(:send_request) { post endpoint, params: { user: params } }
-      
-    #   it { expect(response_status).to eq 200 }
-    #   it { assert_enqueued_jobs 0 }
-    # end
+    context 'when uesr information is invalid' do
+      let(:params) { attributes_for(:user).tap { |u| u.delete(:messenger_id) } }
+      let!(:send_request) { post endpoint, params: { user: params } }
+
+      it { expect(response_status).to eq 200 }
+      it { assert_enqueued_jobs 0 }
+      it { expect(response_body['messages']).not_to be_empty }
+    end
   end
 
   after do
