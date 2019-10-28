@@ -33,7 +33,7 @@ module Api::Chatfuel
     end
 
     def messenger_id
-      params.require(:user).permit(:messenger_id)['messenger_id']
+      params.require(:user).permit(:messenger_id)['messenger_id'] || params[:id]
     end
 
     def serializer

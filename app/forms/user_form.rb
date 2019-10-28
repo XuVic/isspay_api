@@ -6,6 +6,7 @@ class UserForm < Form
            to: :target_resource
 
   def self.in_create(resource, options = {})
+    clear_validators!
     validates :email, presence: true, uniqueness: true, format: VALID_EMAIL_REGEX
     validates :password, presence: true, confirmation: true
     validates :password_confirmation, presence: true
@@ -14,6 +15,11 @@ class UserForm < Form
     validates :first_name, presence: true
     validates :last_name, presence: true
     validates :messenger_id, uniqueness: true, presence: true
+    super(resource, options)
+  end
+
+  def self.in_update(resource, options = {})
+    clear_validators!
     super(resource, options)
   end
 end

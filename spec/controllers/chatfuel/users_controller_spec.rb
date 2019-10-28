@@ -35,6 +35,17 @@ Rails.describe Api::Chatfuel::UsersController, type: :request do
     end
   end
 
+  describe "#update" do
+    let(:user) { create(:user, admin: false) }
+    let(:endpoint) { "/api/chatfuel/users/#{user.messenger_id}" }
+    context 'set user as admin' do
+      let(:params) { { admin: true } }
+      let!(:send_request) { put endpoint, params: { user: params } }
+      
+      it { expect(User.find(user.id).admin?).to be true }
+    end
+  end
+
   after do
     clear_enqueued_jobs
   end

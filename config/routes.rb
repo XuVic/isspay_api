@@ -36,7 +36,7 @@ Rails.application.routes.draw do
       get 'repayment', to: 'accounts#repay'
 
     
-      resources :users, only: %i[create]
+      resources :users, only: %i[create update]
       resources :products, only: %i[index]
     end
   end

@@ -8,7 +8,17 @@ module Api::Chatfuel
       render_msg type: :text, msg: msg
     end
 
+    def update
+      record = UserForm.in_update(current_user, attributes: update_params).submit!
+
+      render_msg type: :text, msg: ['個人資料已更新!']
+    end
+
     private
+    def update_params
+      params.require(:user).permit(:first_name, :last_name, :nick_name, :gender, :role, :admin)
+    end
+
     def sign_up_params
       sanitize_sign_up_params
       params.require(:user).permit(:email, :first_name, :last_name, :nick_name, :gender, :role, :messenger_id)
