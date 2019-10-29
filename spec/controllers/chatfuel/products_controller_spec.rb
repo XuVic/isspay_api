@@ -8,7 +8,7 @@ Rails.describe Api::Chatfuel::ProductsController, type: :request do
     20.times { create(:product, category: 'snack') }
   end
 
-  let(:messenger_id) { create(:user).messenger_id }
+  let(:messenger_id) { create(:user).tap { |u| u.confirm }.messenger_id }
   let(:endpoint) { '/api/chatfuel/products' }
   describe '#index' do
     context 'when inventory has products' do
@@ -41,7 +41,7 @@ Rails.describe Api::Chatfuel::ProductsController, type: :request do
   describe '#update_sheet' do
     context 'when user is admin' do
       let(:user) { create(:user, :admin).tap { |u| u.confirm } }
-      let!(:send_request) { post "#{endpoint}/update_sheet?#{messenger_id_params(user)}" }
+      let!(:send_request) { post "#{endpoint}/update_sheet?#{messenger_id_params(user)}", params: { sync: 'true' } }
 
       it { expect(response_status).to eq 200 }
       it { expect(response_body['messages']).not_to be_empty }
@@ -51,7 +51,7 @@ Rails.describe Api::Chatfuel::ProductsController, type: :request do
     context 'when user is not admin' do
       let(:user) { create(:user) }
 
-      let!(:send_request) { post "#{endpoint}/update_sheet?#{messenger_id_params(user)}" }
+      let!(:send_request) { post "#{endpoint}/update_sheet?#{messenger_id_params(user)}", params: { sync: 'true' } }
 
       it { expect(response_status).to eq 200 }
       it { expect(response_body['messages']).not_to be_empty }

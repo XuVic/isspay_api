@@ -6,12 +6,8 @@ module Api::Chatfuel
       products.each do |product|
         authorize! :index, product
       end
-
-      if products.exists?
-        render_msg :products_gallery, [products, page]
-      else
-        render_msg :text, [['沒有庫存了']]
-      end
+      
+      replier.index(products, page)
     end
 
     def update_sheet
@@ -21,7 +17,7 @@ module Api::Chatfuel
 
       message = sync ? ['資料庫同步中'] : ['資料庫更新中']
 
-      render_msg :text,  [message]
+      replier.send_messages(message)
     end
 
     private

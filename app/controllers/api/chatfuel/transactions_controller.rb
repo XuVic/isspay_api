@@ -5,7 +5,7 @@ module Api::Chatfuel
     def create
       transaction = CreateTransaction.new(user: current_user, params: transaction_params).call!
       
-      render_msg :receipt_reply, [transaction]
+      replier.create(transaction)
     end
 
     def destroy
@@ -17,8 +17,7 @@ module Api::Chatfuel
       message = "取消購買 #{@transaction.product_names.join(';')} " \
                 "退回 #{@transaction.amount}，目前餘額 #{current_user.balance}" 
 
-
-      render_msg :text, [[message]]
+      replier.send_messages([message])
     end
 
     private

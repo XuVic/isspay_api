@@ -4,14 +4,13 @@ module Api::Chatfuel
       record = CreateUser.new(params: sign_up_params).call!
       
       msg = ["恭喜 #{record.name}，成功註冊 IssPay～～", "請到 #{record.email} 信箱收取驗證信"]
-
-      render_msg :text, [msg]
+      replier(record.messenger_id).send_messages(msg)
     end
 
     def set_admin
       current_user.set_admin!(admin_param)
       verb = admin_param ? '成為' : '註銷'
-      render_msg :text, [["#{current_user.first_name} #{verb} Admin."]]
+      replier.send_messages(["#{current_user.first_name} #{verb} Admin."])
     end
 
     private

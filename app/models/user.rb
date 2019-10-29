@@ -47,9 +47,7 @@ class User < ApplicationRecord
   def self.authenticate(email:, password: )
     user_obj = where(email: email).first
 
-    if user_obj
-      user_obj = nil unless user_obj.valid_password?(password)
-    end
+    user_obj = nil if user_obj && !user_obj.valid_password?(password)
 
     user_obj
   end

@@ -1,26 +1,32 @@
 module Api::Chatfuel
   class BaseController < ApplicationController
     rescue_from CanCan::AccessDenied, with: :forbidden
+    rescue_from ActiveRecord::RecordNotFound, with: :forbidden
     rescue_from Form::InputInvalid, with: :form_invalid
     
+    after_action :render_reply
+
     def current_user
-      User.find_by_messenger_id(messenger_id)
+      @_current_user ||= User.where(messenger_id: messenger_id).first
+      return @_current_user
+      raise CanCan::AccessDenied if @_current_user.nil?
     end
 
     private
     def forbidden
-      render_msg :text, [['沒有權限']]
+      message = @_current_user.nil? ? '請先註冊' : '沒有權限'
+      replier.send_messages([message])
+      render_reply
     end
 
     def form_invalid(e)
-      render_msg :text, [e.error_msgs]
+      replier.send_messages(e.error_msgs)
+      render_reply
     end
 
-    def render_msg(type, args)
-      if serializer.set_msg_body(type, *args)
-        response.status = 200
-        self.response_body = serializer.to_json
-      end
+    def render_reply
+      response.status = 200
+      self.response_body = replier.to_json
     end
 
     def build_resource(params)
@@ -33,11 +39,12 @@ module Api::Chatfuel
     end
 
     def messenger_id
-      params.require(:user).require(:messenger_id) || params[:id]
+      params.require(:user).require(:messenger_id) 
     end
 
-    def serializer
-      @serializer ||= ChatfuelJson::Serializer.new(messenger_id)
+    def replier(messenger_id = messenger_id)
+      reply_class = "ChatfuelReply::#{controller_name.capitalize}Reply".constantize
+      @_replier ||= reply_class.new(messenger_id)
     end
   end
 end
