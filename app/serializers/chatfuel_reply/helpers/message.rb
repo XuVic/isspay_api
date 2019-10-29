@@ -1,5 +1,5 @@
 module ChatfuelReply
-  module Message
+  module Helpers::Message
     def text(messages)
       messages = messages.map do |msg|
         { text: msg }

@@ -39,12 +39,13 @@ module Api::Chatfuel
     end
 
     def messenger_id
-      params.require(:user).require(:messenger_id) 
+      params.require(:user)[:messenger_id] 
     end
 
-    def replier(messenger_id = messenger_id)
+    def replier
       reply_class = "ChatfuelReply::#{controller_name.capitalize}Reply".constantize
-      @_replier ||= reply_class.new(messenger_id)
+      @_current_user ||= User.where(messenger_id: messenger_id).first
+      @_replier ||= reply_class.new(@_current_user)
     end
   end
 end

@@ -1,12 +1,11 @@
 module ChatfuelReply
   class Reply
-    include Message
-    include UrlHelper
+    include Helpers::All
 
-    attr_reader :messenger_id, :body
+    attr_reader :user, :body
 
-    def initialize(messenger_id)
-      @messenger_id = messenger_id
+    def initialize(user)
+      @user = user
       @body = []
     end
 
@@ -21,6 +20,10 @@ module ChatfuelReply
     end
 
     private
+
+    def messenger_id
+      user ? user.messenger_id : ''
+    end
 
     def set_reply_body(body)
       @body = body

@@ -1,5 +1,5 @@
 module ChatfuelReply
-  module UrlHelper
+  module Helpers::UrlHelper
     def products_url(category, page = 1)
       query_string = "product[category]=#{category}&#{messenger_id_str}&page=#{page}"
       "#{chatfuel_url}/products?#{query_string}"
