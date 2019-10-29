@@ -14,8 +14,10 @@
 
 FactoryBot.define do
   factory :product do
-    name { Faker::Food.dish }
+    sequence(:name) { |n| "#{Faker::Food.dish}-#{n}" }
+
     price { Random.rand(100) }
+    cost { 0 }
     quantity { Random.rand(10..50) }
     image_url { 'https://i.imgur.com/eYl9RO4.png' }
     category { ['snack', 'drink'].shuffle.first }

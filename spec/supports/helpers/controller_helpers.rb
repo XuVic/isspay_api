@@ -47,6 +47,10 @@ module ControllerHelpers
     response.status
   end
 
+  def messenger_id_params(user)
+    "user[messenger_id]=#{user.messenger_id}"
+  end
+
   private
 
   def auth_request(user)

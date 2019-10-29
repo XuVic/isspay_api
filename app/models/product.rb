@@ -18,15 +18,11 @@ class Product < ApplicationRecord
 
   scope :quantity_scope, -> (range=[]) { where(quantity: to_range(range)) }
   scope :price_scope, -> (range=[]) { where(price: to_range(range)) }
-  scope :category_scope, -> (category_id) { where(category_id: category_id) }
+  scope :category_scope, -> (category) { where(category: category) }
 
   def self.paginate(page, size)
     skips = page < 1 ? 1 : (page - 1) * size
     
     Product.offset(skips).limit(size)
-  end
-
-  def available?
-    quantity.positive?
   end
 end

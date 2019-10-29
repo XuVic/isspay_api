@@ -7,7 +7,7 @@ module Abilities
         can :index, resource
       end
 
-      if user.admin?
+      if user.admin? && user_confirmed?
         can :modify, resource
         can :create, resource
       end

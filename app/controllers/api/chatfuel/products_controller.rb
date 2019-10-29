@@ -3,19 +3,24 @@ module Api::Chatfuel
     prepend_before_action :sanitize_params, only: :index
 
     def index
+
       products.each do |product|
         authorize! :index, product
       end
 
-      message = ChatfuelJson::Response.new(resources: products, messenger_id: messenger_id)
+      if products.exists?
+        render_msg :products_gallery, [products, page]
+      else
+        render_msg :text, [['沒有庫存了']]
+      end
     end
 
-    def create
-      authorize! :create, Product
-    
-      record = ProductForm.in_create(Product.new(product_params)).submit!
+    def update_sheet
+      authorize! :update, Product
 
-      render_msg :product_created, record
+      UpdateSheetJob.perform_later(:google)
+
+      render_msg :text,  [["更新中，大約花費3~5sec"]]
     end
 
     private
@@ -25,23 +30,15 @@ module Api::Chatfuel
     end
 
     def products
-      Product.available.find_by_category(category).paginate(page, 9).all
-    end
-
-    def product_params
-      params.require(:product).permit(:category, :name, :quantity, :price, :image_url)
+      Product.quantity_scope([1]).category_scope(category).paginate(page, 9).all
     end
 
     def page
-      params.require(:page)
+      params.require(:page).to_i
     end
 
     def category
-      product_params[:category]
-    end
-
-    def sanitize_params
-      params[:page] = params[:page].to_i
+      params.require(:product).require(:category)
     end
   end
 end

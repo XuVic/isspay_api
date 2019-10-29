@@ -43,7 +43,7 @@ Rails.application.routes.draw do
       end
       resources :products, only: %i[index] do
         collection do
-          post 'update_multiple', to: 'products#update_multiple'
+          post 'update_sheet', to: 'products#update_sheet'
         end
       end
     end

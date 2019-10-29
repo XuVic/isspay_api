@@ -56,12 +56,17 @@ class GoogleSheetAdapter
     ValuesWrapper.to_struct res.values
   end
 
+  def clear_page(table)
+    request_body = Google::Apis::SheetsV4::ClearValuesRequest.new
+    gateway.clear_values sheet_id, range(table, ['A', 'Z'], [2]), request_body
+  end
+
   def write_all(records)
     values_wrapper = ValuesWrapper.new(records)
     table = values_wrapper.table_name
     values = values_wrapper.to_values_with(cols_order(table))
     value_range_object = Google::Apis::SheetsV4::ValueRange.new(values: values) 
-    res = gateway.update_spreadsheet_value sheet_id, range(table, ['A', 'Z'], [2, 1+values.count]), value_range_object, value_input_option: 'RAW'
+    res = gateway.update_spreadsheet_value sheet_id, range(table, ['A', 'Z'], [2]), value_range_object, value_input_option: 'RAW'
     res.updated_rows
   end
 

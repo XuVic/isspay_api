@@ -16,8 +16,8 @@ module Api::Chatfuel
       render_msg :text, e.error_msgs
     end
 
-    def render_msg(type, msg)
-      if serializer.set_msg_body(type, msg)
+    def render_msg(type, args)
+      if serializer.set_msg_body(type, *args)
         response.status = 200
         self.response_body = serializer.to_json
       end

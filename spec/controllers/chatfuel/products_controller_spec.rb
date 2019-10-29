@@ -2,9 +2,10 @@ require 'rails_helper'
 require_relative 'templates/init'
 
 Rails.describe Api::Chatfuel::ProductsController, type: :request do
+  include ActiveJob::TestHelper
+
   before :all do
-    5.times { create(:product, category: 'snack') }
-    5.times { create(:product, category: 'drink', quantity: 0) }
+    20.times { create(:product, category: 'snack') }
   end
 
   let(:messenger_id) { create(:user).messenger_id }
@@ -35,5 +36,30 @@ Rails.describe Api::Chatfuel::ProductsController, type: :request do
       it { expect(response_status).to eq 200 }
       it { expect(response.body).to include("沒有庫存") }
     end
+  end
+
+  describe '#update_sheet' do
+    context 'when user is admin' do
+      let(:user) { create(:user, :admin).tap { |u| u.confirm } }
+      let!(:send_request) { post "#{endpoint}/update_sheet?#{messenger_id_params(user)}" }
+
+      it { expect(response_status).to eq 200 }
+      it { expect(response_body['messages']).not_to be_empty }
+      it { assert_enqueued_jobs 1 }
+    end
+
+    context 'when user is not admin' do
+      let(:user) { create(:user) }
+
+      let!(:send_request) { post "#{endpoint}/update_sheet?#{messenger_id_params(user)}" }
+
+      it { expect(response_status).to eq 200 }
+      it { expect(response_body['messages']).not_to be_empty }
+      it { assert_enqueued_jobs 0 }
+    end
+  end
+
+  after do
+    clear_enqueued_jobs
   end
 end
