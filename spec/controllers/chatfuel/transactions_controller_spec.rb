@@ -14,7 +14,7 @@ Rails.describe Api::Chatfuel::TransactionsController, type: :request do
       let(:template) { Hash.symbolize(transaction_reply) }  
       context 'and messenger_id is correct' do
         let!(:send_request) { get "#{endpoint}?#{query_str}" }
-  
+      
         it { expect(response_status).to eq 200 }
         it { expect(User.find(user.id).balance).to eq user.balance - product.price }
         it { expect(response_body.same_key_structure?(template)).to be true }
@@ -37,12 +37,12 @@ Rails.describe Api::Chatfuel::TransactionsController, type: :request do
   describe '#destroy' do
     before :all do
       @user = create(:user)
-      @transaction = create(:transaction, account: @user.account)
+      @transaction = create(:transaction, :purchase, account: @user.account)
       get "/api/chatfuel/delete_transaction/#{@transaction.id}?user[messenger_id]=#{@user.messenger_id}"
     end
 
     it { expect(response.status).to eq 200 }
     it { expect(User.find(@user.id).balance).to eq @transaction.amount + @user.balance }
-    it { expect(response.body).to include "#{User.find(@user.id).balance.abs}" }
+    it { expect(response.body).to include "#{User.find(@user.id).balance}" }
   end
 end

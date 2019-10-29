@@ -12,8 +12,7 @@
 
 FactoryBot.define do
   factory :account do
-    credit { 1000 }
-    debit { 500 }
+    balance { 1000 }
     association :owner, factory: :user
   end
 end

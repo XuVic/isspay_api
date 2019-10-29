@@ -10,11 +10,13 @@ module Api::Chatfuel
 
     def destroy
       authorize! :destroy, @transaction
-
-      message = "取消購買 #{@transaction.product_names.join(';')} " \
-                "退回 #{@transaction.amount}，目前餘額 #{current_user.balance}" 
       
       DeleteTransaction.new(@transaction).call!
+
+      current_user.reload_account
+      message = "取消購買 #{@transaction.product_names.join(';')} " \
+                "退回 #{@transaction.amount}，目前餘額 #{current_user.balance}" 
+
 
       render_msg :text, [[message]]
     end

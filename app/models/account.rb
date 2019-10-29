@@ -20,16 +20,12 @@ class Account < ApplicationRecord
 
   class TransactionInvalid < StandardError; end
 
-  def balance
-    credit - debit
-  end
-
   def pay!(cost)
-    increment!(:debit, by = cost)
+    decrement!(:balance, by = cost)
   end
 
   def receive!(money)
-    increment!(:credit, by = money)
+    increment!(:balance, by = money)
   end
 
   def consumption(months)

@@ -57,12 +57,13 @@ class Transaction < ApplicationRecord
     receivers.map(&:owner_name)
   end
 
-  def amount
+  def set_amount!
     if purchase?
-      purchased_products.reduce(0) { |s, p| s + (p.price * p.quantity) }
+      self.amount = purchased_products.reduce(0) { |s, p| s + (p.price * p.quantity) }
     elsif transfer?
-      transfer_details.reduce(0) { |s, t| s + t.amount }
+      self.amount = transfer_details.reduce(0) { |s, t| s + t.amount }
     end
+    self.save!
   end
   
   def purchase?

@@ -28,7 +28,7 @@ class User < ApplicationRecord
   enum gender: %i[male female]
   enum role: %i[master phd candidate staff alumni]
 
-  delegate :credit, :debit, :balance, :orders, :transfers, :transactions, to: :account
+  delegate :balance, :orders, :transfers, :transactions, to: :account
 
   default_scope { includes(:account) }
 
@@ -52,10 +52,6 @@ class User < ApplicationRecord
     end
 
     user_obj
-  end
-
-  def credit=(amount)
-    self.account.credit = amount
   end
 
   def set_admin!(is_admin)

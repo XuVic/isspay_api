@@ -10,15 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_29_072505) do
+ActiveRecord::Schema.define(version: 2019_10_29_111959) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.float "debit", default: 0.0, null: false, comment: "借"
-    t.float "credit", default: 0.0, null: false, comment: "貸"
+    t.float "balance", default: 0.0, null: false, comment: "貸"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "owner_id"
@@ -52,6 +51,7 @@ ActiveRecord::Schema.define(version: 2019_10_29_072505) do
     t.uuid "account_id"
     t.integer "genre", default: 0, null: false
     t.integer "state"
+    t.float "amount"
     t.index ["account_id"], name: "index_transactions_on_account_id"
   end
 

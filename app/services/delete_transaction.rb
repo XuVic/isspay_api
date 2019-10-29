@@ -27,12 +27,12 @@ class DeleteTransaction < Service
   end
 
   def balance_increment
-    transaction.account.decrement!(:debit, size = transaction.amount)
+    transaction.account.receive!(transaction.amount)
   end
 
   def receiver_decrement
     transaction.transfer_details.each do |transfer|
-      transfer.receiver.decrement!(:credit, size = transfer.amount)
+      transfer.receiver.pay!(transfer.amount)
     end
   end
 

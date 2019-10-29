@@ -40,7 +40,11 @@ class CreateTransaction < Service
 
     transfer_details.each do |transfer_detail|
       account = transfer_detail.receiver
-      account.increment!(:credit, transfer_detail.amount)
+      account.increment!(:balance, transfer_detail.amount)
     end
+  end
+
+  def transaction_amount
+    
   end
 end

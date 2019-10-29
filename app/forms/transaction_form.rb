@@ -6,7 +6,7 @@ class TransactionForm < Form
     t = Transaction.create!(genre: params[:genre], account_id: params[:account_id])
     t.purchased_products_attributes = params[:purchased_products_attributes] if params[:purchased_products_attributes]
     t.transfer_details_attributes = params[:transfer_details_attributes] if params[:transfer_details_attributes]
-    t if t.save!
+    t if t.set_amount!
   end
 
   def purchase_validation
