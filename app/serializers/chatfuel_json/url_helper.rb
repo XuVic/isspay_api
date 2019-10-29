@@ -1,18 +1,17 @@
 module ChatfuelJson
   module UrlHelper
     def products_url(category, page = 1)
-      query_string = "product[category]=#{category}&user[messenger_id]=#{messenger_id}&page=#{page}"
+      query_string = "product[category]=#{category}&#{messenger_id_str}&page=#{page}"
       "#{chatfuel_url}/products?#{query_string}"
     end
 
     def destroy_transaction_url(transaction)
-      query_string = "user[messenger_id]=#{messenger_id}"
-      "#{chatfuel_url}/delete_transaction/#{transaction.id}?#{query_string}"
+      "#{chatfuel_url}/delete_transaction/#{transaction.id}?#{messenger_id_str}"
     end
 
     def purchase_url(product)
-      "#{chatfuel_url}/api/chatfuel/create_transaction?" \
-      "user[messenger_id]=#{messenger_id}&products[][id]=#{product.id}&products[][quantity]=1"
+      "#{chatfuel_url}/create_transaction?" \
+      "#{messenger_id_str}&transaction[purchased_products_attributes][][product_id]=#{product.id}&transaction[purchased_products_attributes][][quantity]=1&transaction[genre]=purchase"
     end
 
     def repayment_url
@@ -25,7 +24,7 @@ module ChatfuelJson
 
     private
 
-    def messenger_id
+    def messenger_id_str
       "user[messenger_id]=#{messenger_id}"
     end
 

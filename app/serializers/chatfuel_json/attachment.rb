@@ -11,7 +11,7 @@ module ChatfuelJson
       end
 
       category = products[0].category
-      products_count = Product.category_scope(category.to_s).count
+      products_count = Product.category_scope(category.to_s).available.count
 
       product_elements << {
         title: "目前在第 #{page} 頁",

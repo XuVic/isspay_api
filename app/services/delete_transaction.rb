@@ -1,8 +1,7 @@
 class DeleteTransaction < Service
   attr_reader :transaction
 
-  def initialize(user, transaction)
-    super(user)
+  def initialize(transaction)
     @transaction = transaction
   end
 

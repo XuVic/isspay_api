@@ -9,11 +9,11 @@ module Api::Chatfuel
 
     private
     def forbidden
-      render_msg :text, ['沒有權限']
+      render_msg :text, [['沒有權限']]
     end
 
     def form_invalid(e)
-      render_msg :text, e.error_msgs
+      render_msg :text, [e.error_msgs]
     end
 
     def render_msg(type, args)
@@ -33,7 +33,7 @@ module Api::Chatfuel
     end
 
     def messenger_id
-      params.require(:user).permit(:messenger_id)['messenger_id'] || params[:id]
+      params.require(:user).require(:messenger_id) || params[:id]
     end
 
     def serializer

@@ -5,9 +5,9 @@ class UpdateSheetJob < ApplicationJob
 
   attr_reader :gateway
 
-  def perform(adapter)
+  def perform(adapter, sync)
     @gateway = ADAPTERS[adapter.to_sym].new
-    update_products_from_sheet
+    update_products_from_sheet unless sync
     update_sheet_from_db
   end
 

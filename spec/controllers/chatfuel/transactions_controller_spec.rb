@@ -9,7 +9,7 @@ Rails.describe Api::Chatfuel::TransactionsController, type: :request do
     let(:endpoint) { '/api/chatfuel/create_transaction' }
 
     context 'when purchase a product' do
-      let(:product) { create(:product, :snack) }
+      let(:product) { create(:product, category: 'snack') }
       let(:query_str) { "user[messenger_id]=#{messenger_id}&transaction[purchased_products_attributes][][product_id]=#{product.id}&transaction[purchased_products_attributes][][quantity]=1&transaction[genre]=purchase" }
       let(:template) { Hash.symbolize(transaction_reply) }  
       context 'and messenger_id is correct' do
@@ -36,9 +36,9 @@ Rails.describe Api::Chatfuel::TransactionsController, type: :request do
 
   describe '#destroy' do
     before :all do
-      @user = User.find_by_messenger_id(@messenger_id)
-      @transaction = @user.order([@product], allowed: true)
-      get "/api/chatfuel/delete_transaction/#{@transaction.id}?user[messenger_id]=#{@messenger_id}"
+      @user = create(:user)
+      @transaction = create(:transaction, account: @user.account)
+      get "/api/chatfuel/delete_transaction/#{@transaction.id}?user[messenger_id]=#{@user.messenger_id}"
     end
 
     it { expect(response.status).to eq 200 }

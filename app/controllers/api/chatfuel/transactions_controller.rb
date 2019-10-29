@@ -3,10 +3,9 @@ module Api::Chatfuel
     before_action :find_transaction, only: %i(destroy)
 
     def create
-      transaction = CreateTransaction.new(current_user, transaction_params).call!
-      message = ChatfuelJson::Serializer.new(messenger_id)
-      message.set_msg_body(:receipt_reply, transaction)
-      respond_with message
+      transaction = CreateTransaction.new(user: current_user, params: transaction_params).call!
+      
+      render_msg :receipt_reply, [transaction]
     end
 
     def destroy
@@ -15,11 +14,9 @@ module Api::Chatfuel
       message = "取消購買 #{@transaction.product_names.join(';')} " \
                 "退回 #{@transaction.amount}，目前餘額 #{current_user.balance}" 
       
-      @transaction.destroy!
+      DeleteTransaction.new(@transaction).call!
 
-      message = ChatfuelJson::Serializer.new(messenger_id)
-      message.set_msg_body(:text, [message])
-      render_json message
+      render_msg :text, [[message]]
     end
 
     private

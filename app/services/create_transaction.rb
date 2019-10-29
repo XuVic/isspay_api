@@ -1,11 +1,4 @@
 class CreateTransaction < Service
-  attr_reader :params
-
-  def initialize(user, params)
-    super(user)
-    @params = params
-  end
-
   def call!
     sql_transaction do
       create_transaction
