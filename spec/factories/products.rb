@@ -18,13 +18,6 @@ FactoryBot.define do
     price { Random.rand(100) }
     quantity { Random.rand(10..50) }
     image_url { 'https://i.imgur.com/eYl9RO4.png' }
-
-    trait :snack do
-      category { Category.find_or_create_by(name: 'snack') }
-    end
-
-    trait :drink do
-      category { Category.find_or_create_by(name: 'drink') }
-    end
+    category { ['snack', 'drink'].shuffle.first }
   end
 end

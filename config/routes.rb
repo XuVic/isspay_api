@@ -41,7 +41,11 @@ Rails.application.routes.draw do
           post 'set_admin', to: 'users#set_admin'
         end
       end
-      resources :products, only: %i[index]
+      resources :products, only: %i[index] do
+        collection do
+          post 'update_multiple', to: 'products#update_multiple'
+        end
+      end
     end
   end
 end

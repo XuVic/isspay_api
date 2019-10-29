@@ -9,14 +9,14 @@ module Api::Chatfuel
 
     private
     def forbidden
-      render_msg type: :text, msg: ['沒有權限']
+      render_msg :text, ['沒有權限']
     end
 
     def form_invalid(e)
-      render_msg type: :text, msg: e.error_msgs
+      render_msg :text, e.error_msgs
     end
 
-    def render_msg(type:, msg:)
+    def render_msg(type, msg)
       if serializer.set_msg_body(type, msg)
         response.status = 200
         self.response_body = serializer.to_json

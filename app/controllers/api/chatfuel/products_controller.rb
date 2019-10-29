@@ -8,15 +8,14 @@ module Api::Chatfuel
       end
 
       message = ChatfuelJson::Response.new(resources: products, messenger_id: messenger_id)
-      
-      if products.empty? 
-        message.body_to(:out_of_stock)
-      else
-        next_age = out_of_range ? nil : page + 1
-        message.body_to(:products_gallery, next_age)
-      end
+    end
 
-      respond_with message
+    def create
+      authorize! :create, Product
+    
+      record = ProductForm.in_create(Product.new(product_params)).submit!
+
+      render_msg :product_created, record
     end
 
     private
@@ -30,7 +29,7 @@ module Api::Chatfuel
     end
 
     def product_params
-      params.require(:product).permit(:category)
+      params.require(:product).permit(:category, :name, :quantity, :price, :image_url)
     end
 
     def page

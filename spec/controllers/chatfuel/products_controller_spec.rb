@@ -3,8 +3,8 @@ require_relative 'templates/init'
 
 Rails.describe Api::Chatfuel::ProductsController, type: :request do
   before :all do
-    5.times { create(:product, :snack) }
-    5.times { create(:product, :drink, quantity: 0) }
+    5.times { create(:product, category: 'snack') }
+    5.times { create(:product, category: 'drink', quantity: 0) }
   end
 
   let(:messenger_id) { create(:user).messenger_id }

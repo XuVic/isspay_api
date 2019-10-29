@@ -6,6 +6,12 @@ module ChatfuelJson
       end
     end
 
+    def product_created(product)
+      text = "成功建立 #{product.name} - 價格:#{product.price}, 數量:#{product.quantity}, 類型:#{product.category}"
+      replies = [ quick_reply('取消建立', url: cancel_product_url(product)) ]
+      { text: text, quick_replies: replies }
+    end
+
     def receipt_reply(transaction)
       message = purchase_receipt(transaction) if transaction.purchase?
       message = transfer_receipt(transaction) if transaction.transfer?

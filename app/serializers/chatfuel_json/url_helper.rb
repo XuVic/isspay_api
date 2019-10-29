@@ -19,7 +19,15 @@ module ChatfuelJson
       "#{chatfuel_url}/repayment/#{messenger_id}"
     end
 
+    def cancel_product_url(product)
+      "#{chatfuel_url}/delete_product/#{product.id}?#{messenger_id}"
+    end
+
     private
+
+    def messenger_id
+      "user[messenger_id]=#{messenger_id}"
+    end
 
     def chatfuel_url
       "#{IsspayApi.config.API_URL}/api/chatfuel"

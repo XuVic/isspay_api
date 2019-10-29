@@ -56,6 +56,7 @@ gem 'responders', '~> 3.0'
 gem 'compass-rails', github: 'Compass/compass-rails'
 gem 'sprockets-rails', '~> 3.2', '>= 3.2.1'
 gem 'railties', '~> 6.0.0'
+gem 'google-api-client', '~> 0.11'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

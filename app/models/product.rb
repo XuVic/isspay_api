@@ -13,11 +13,8 @@
 #
 
 class Product < ApplicationRecord
-  belongs_to :category
   has_many :purchased_products
   has_many :orders, through: :purchased_products 
-
-  default_scope { includes(:category) }
 
   scope :quantity_scope, -> (range=[]) { where(quantity: to_range(range)) }
   scope :price_scope, -> (range=[]) { where(price: to_range(range)) }
@@ -31,9 +28,5 @@ class Product < ApplicationRecord
 
   def available?
     quantity.positive?
-  end
-
-  def category_name
-    category.name
   end
 end
