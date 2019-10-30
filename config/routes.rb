@@ -31,11 +31,12 @@ Rails.application.routes.draw do
     namespace :chatfuel do
       get 'create_transaction', to: 'transactions#create'
       get 'delete_transaction/:id', to: 'transactions#destroy'
+      
+      scope :accounts do
+        get '/', to: 'accounts#show'
+        get 'repay', to: 'accounts#repay'
+      end
 
-      get 'accounts/:messenger_id', to: 'accounts#show'
-      get 'repayment', to: 'accounts#repay'
-
-    
       resources :users, only: %i[create] do
         collection do
           post 'set_admin', to: 'users#set_admin'

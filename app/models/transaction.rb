@@ -27,7 +27,6 @@ class Transaction < ApplicationRecord
 
   delegate :owner, to: :account
 
-  default_scope { includes(:purchased_products, :transfer_details) }
   scope :since_scope, -> (date) { where(["created_at >= ?", date]) }
   scope :before_scope, -> (date) { where(["created_at <= ?", date]) }
   scope :genre_scope, -> (genre) { where(genre: genre) }

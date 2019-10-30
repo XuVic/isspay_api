@@ -15,7 +15,7 @@ module ChatfuelReply
     end
 
     def repayment_url
-      "#{chatfuel_url}/repayment/#{messenger_id}"
+      "#{chatfuel_url}/account/repay?#{messenger_id_str}"
     end
 
     def cancel_product_url(product)

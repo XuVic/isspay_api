@@ -13,12 +13,15 @@
 class Account < ApplicationRecord
   belongs_to :owner, foreign_key: 'owner_id', class_name: 'User'
   has_many :transactions
-  has_many :orders, -> { where 'genre = 0' }, class_name: 'Transaction'
-  has_many :transfers, -> { where 'genre = 1' }, class_name: 'Transaction'
+  has_many :orders, -> { where('genre = 0').order(created_at: :desc) }, class_name: 'Transaction'
+  has_many :transfers, -> { where('genre = 1').order(created_at: :desc) }, class_name: 'Transaction'
   has_many :transfer_details, foreign_key: :receiver_id
   has_many :receipts, through: :transfer_details, source: :transfer
 
-  class TransactionInvalid < StandardError; end
+  def purchased_products(unpaid: )
+    return orders.unpaid.map(&:purchased_products).flatten if unpaid
+    orders.map(&:purchased_products).flatten
+  end
 
   def pay!(cost)
     decrement!(:balance, by = cost)
@@ -26,19 +29,6 @@ class Account < ApplicationRecord
 
   def receive!(money)
     increment!(:balance, by = money)
-  end
-
-  def consumption(months)
-    now = Time.now
-    Array(0..months).inject([]) do |result, month|
-      new_time = TimeDecorator.new(Time.now).ago(month * 30)
-      selected_orders = orders.select { |o| new_time.between?(o.created_at) }
-      result << {
-        date: new_time.strftime('%Y/%m'),
-        products: selected_orders.reduce(0) { |sum, o| sum += o.products.size },
-        cost: selected_orders.reduce(0) { |sum, o| sum += o.amount }
-      }
-    end
   end
 
   def owner_name
