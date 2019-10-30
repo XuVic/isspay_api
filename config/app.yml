@@ -1,14 +1,11 @@
 default: &default
-  REDIS_URL: 'redis://127.0.0.1:6379/1'
+  API_URL: http://c392cad5.ngrok.io
 
 development:
   <<: *default
-  API_URL: http://c392cad5.ngrok.io
-
+  
 test:
   <<: *default
-  API_URL: http://c392cad5.ngrok.io
 
 production:
-  REDIS_URL: 'redis://127.0.0.1:6379/1'
   API_URL: http://c392cad5.ngrok.io

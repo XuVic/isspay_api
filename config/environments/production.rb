@@ -6,13 +6,13 @@ Rails.application.configure do
     address: 'smtp.sendgrid.net',
     port: 587,
     domain: 'localhost.localdomain',
-    user_name: Rails.application.credentials[Rails.env.to_sym][':sendgrid_username'],
-    password: Rails.application.credentials[Rails.env.to_sym][':sendgrid_password'],
+    user_name: Rails.application.credentials[:sendgrid][:username],
+    password: Rails.application.credentials[:sendgrid][:password],
     authentication: :login,
     enable_ssl: true
   }
   config.active_job.queue_adapter = :async
-  
+  config.action_mailer.delivery_method = :smtp
   # Code is not reloaded between requests.
   config.cache_classes = true
 
