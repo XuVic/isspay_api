@@ -6,6 +6,4 @@ development:
   
 test:
   <<: *default
-
-production:
-  API_URL: http://c392cad5.ngrok.io
+  

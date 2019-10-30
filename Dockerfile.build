@@ -4,7 +4,7 @@ FROM ruby:${RUBY_VERSION}-alpine
 
 RUN apk update
 RUN apk add ruby-dev libpq postgresql-dev dpkg-dev g++ gcc make patch ca-certificates \
-            nodejs libsodium-dev libc6-compat libc-dev zlib-dev zlib
+            nodejs libsodium-dev libc6-compat libc-dev zlib-dev zlib git sqlite libffi-dev bash
 
 ENV WORKDIR_PATH=/app
 RUN mkdir $WORKDIR_PATH
@@ -15,7 +15,9 @@ ENV BUNDLER_VERSION=${BUNDLER}
 
 ONBUILD COPY ./Gemfile /app 
 ONBUILD COPY ./Gemfile.lock /app
+ONBUILD ENV BUNDLER_VERSION=2.0.2
+ONBUILD RUN bundle install --deployment --without development test
 ONBUILD COPY . /app/
 
 ENTRYPOINT ["bundle", "exec"]
-CMD ["puma", "-C", "/config/puma.rb"]
+CMD ["rails", "console"]
