@@ -12,6 +12,7 @@ Rails.describe Api::Chatfuel::UsersController, type: :request do
 
       it { expect(response_status).to eq 200 }
       it { expect(response_body['messages']).not_to be_empty }
+      it { expect(User.where(email: params[:email]).first!.confirmed?).to eq true}
       it { assert_enqueued_jobs 1 }
     end
 

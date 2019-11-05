@@ -3,6 +3,7 @@ class CreateUser < Service
   def call!
     create_temp_pwd
     validate_input
+    confirme_user
     send_confirmation_mail
   end
 
@@ -21,6 +22,11 @@ class CreateUser < Service
     data[:record] = form.submit!
     raise ServiceError unless data[:record].persisted?
     data[:args] = [Marshal.dump(data[:record]), params[:password]]
+  end
+
+  def confirme_user
+    data[:record].confirm
+    raise ServiceError.new('User is not confirmed') unless data[:record].confirmed?
   end
 
   def send_confirmation_mail
