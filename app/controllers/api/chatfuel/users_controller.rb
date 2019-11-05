@@ -3,8 +3,18 @@ module Api::Chatfuel
     def create
       record = CreateUser.new(params: sign_up_params).call!
       
-      msg = ["恭喜 #{record.name}，成功註冊 IssPay～～", "請到 #{record.email} 信箱收取驗證信"]
+      msg = ["恭喜 #{record.name}，成功註冊 IssPay～～", "請到 #{record.email} 信箱收取確認信"]
       replier.send_messages(msg)
+    end
+
+    def update
+      user = UserForm.in_update(current_user, attributes: updated_params).submit!
+      
+      replier.update(user)
+    end
+
+    def show
+      replier.show(current_user)
     end
 
     def set_admin
@@ -15,20 +25,26 @@ module Api::Chatfuel
 
     private
 
+    def updated_params
+      sanitize_params
+
+      params.require(:user).permit(:email, :first_name, :last_name, :nick_name, :gender, :role, :messenger_id, :admin)
+    end
+
     def admin_param
       params[:user][:admin].downcase == 'false' ? false : true
     end
 
     def sign_up_params
-      sanitize_sign_up_params
+      sanitize_params
       params.require(:user).permit(:email, :first_name, :last_name, :nick_name, :gender, :role, :messenger_id)
     end
 
-    def sanitize_sign_up_params
+    def sanitize_params
       return unless params[:user]
       
       params[:user][:gender] = params[:user][:gender].to_i if params[:user][:gender]
-      params[:user][:role] = params[:user][:role].to_i if params[:user][:gender]
+      params[:user][:role] = params[:user][:role].to_i if params[:user][:role]
     end
   end
 end

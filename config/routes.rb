@@ -39,7 +39,9 @@ Rails.application.routes.draw do
 
       resources :users, only: %i[create] do
         collection do
+          get '/', to: 'users#show'
           post 'set_admin', to: 'users#set_admin'
+          post 'update', to: 'users#update'
         end
       end
       resources :products, only: %i[index] do

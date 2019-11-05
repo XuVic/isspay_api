@@ -54,6 +54,17 @@ Rails.describe Api::Chatfuel::UsersController, type: :request do
     end
   end
 
+  describe "#update" do
+    let(:user) { create(:user, admin: false, role: 'master') }
+    let(:endpoint) { "/api/chatfuel/users/update" }
+    context 'switch user role' do
+      let(:params) { { messenger_id: user.messenger_id, role: '4' } }
+      let!(:send_request) { post endpoint, params: { user: params } }
+
+      it { expect(User.find(user.id).role).to eq 'alumni' }
+    end
+  end
+
   after do
     clear_enqueued_jobs
   end
