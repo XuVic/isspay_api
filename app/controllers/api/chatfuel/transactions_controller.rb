@@ -4,8 +4,8 @@ module Api::Chatfuel
 
     def create
       transaction = CreateTransaction.new(user: current_user, params: transaction_params).call!
-      
-      replier.create(transaction)
+      current_user.reload_account
+      replier.create(transaction, current_user.account)
     end
 
     def destroy

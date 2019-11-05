@@ -10,7 +10,7 @@ class Service
 
   attr_reader :user, :data
 
-  def initialize(user: nil, data: {}, params: )
+  def initialize(user: nil, data: {}, params: nil)
     @user = user
     @data = data.merge({params: params})
   end

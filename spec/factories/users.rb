@@ -31,5 +31,11 @@ FactoryBot.define do
     trait :admin do
       admin { true }
     end
+
+    trait :confirmed do
+      after(:create) do |u|
+        u.confirm
+      end
+    end
   end
 end

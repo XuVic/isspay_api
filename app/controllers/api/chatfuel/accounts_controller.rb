@@ -7,6 +7,10 @@ module Api::Chatfuel
     end
 
     def repay
+      balance = current_user.balance
+      account = AccountRepay.new(user: current_user).call!
+
+      replier.repay(balance, account)
     end
 
     private
