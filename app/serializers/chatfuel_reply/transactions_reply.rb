@@ -21,7 +21,7 @@ module ChatfuelReply
     private
 
     def purchase_receipt(transaction, account)
-      text = "成功購買 #{transaction.product_names.join(';')}，" \
+      text = "成功購買 #{transaction.product_names}，" \
       "總金額為 #{transaction.amount}，目前花費 #{-1 * account.balance} "
       replies = []
       replies << quick_reply('還要吃', url: products_url('snack'))
@@ -32,7 +32,7 @@ module ChatfuelReply
     end
 
     def transfer_receipt(transaction, account)
-      text = "成功轉帳給 #{transaction.receiver_names.join(';')}，" \
+      text = "成功轉帳給 #{transaction.receiver_names}，" \
       "總金額為 #{transaction.amount}"
       replies = [ quick_reply('取消轉帳', url: destroy_transaction_url(transaction)) ]
       { text: text, quick_replies: replies }

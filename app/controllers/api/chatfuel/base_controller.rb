@@ -8,8 +8,8 @@ module Api::Chatfuel
 
     def current_user
       @_current_user ||= User.where(messenger_id: messenger_id).first
-      return @_current_user
       raise CanCan::AccessDenied if @_current_user.nil?
+      return @_current_user
     end
 
     private

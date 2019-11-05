@@ -22,7 +22,7 @@ module ChatfuelReply
     def repay(balance, account)
       first_date = account.orders.paid.first.created_at.strftime('%Y/%m/%d')
       messages = [
-        "總共償還金額為 #{balance}",
+        "總共償還金額為 #{-1 * balance}",
         "目前帳戶欠款#{account.balance}",
         "最後交易時間為 #{first_date}"
       ]
