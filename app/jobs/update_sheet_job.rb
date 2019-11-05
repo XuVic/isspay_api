@@ -8,6 +8,7 @@ class UpdateSheetJob < ApplicationJob
   def perform(adapter, sync)
     @gateway = ADAPTERS[adapter.to_sym].new
     update_products_from_sheet unless sync
+    update_users_from_sheet unless sync
     update_sheet_from_db
   end
 
@@ -21,8 +22,14 @@ class UpdateSheetJob < ApplicationJob
     Product.destroy(destroy_records.map(&:id)) if destroy_records.present?
   end
 
+  def update_users_from_sheet
+    results = @gateway.read_all('Users')
+    destroy_records = results.select { |u| u.deleted == '1' }
+    User.destroy(destroy_records.map(&:id)) if destroy_records.present?
+  end
+
   def update_sheet_from_db
-    update_products
+    update_products 
     update_users
     update_transactions
   end
