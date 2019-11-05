@@ -1,7 +1,6 @@
 module ChatfuelReply
   class AccountsReply < Reply
     def show(account)
-
       purchased_date = account.orders.unpaid.first.created_at
       last_date = account.orders.unpaid.last.created_at.strftime('%Y/%m/%d')
       products_count = account.purchased_products(unpaid: true).map(&:quantity).sum

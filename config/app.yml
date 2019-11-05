@@ -1,5 +1,5 @@
 default: &default
-  API_URL: http://c392cad5.ngrok.io
+  API_URL: http://5fb81ac4.ngrok.io
 
 development:
   <<: *default

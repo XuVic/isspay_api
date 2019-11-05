@@ -6,6 +6,15 @@ module ChatfuelReply
       set_reply_body [ message ]
     end
 
+    def destroy(product_names, transaction, account)
+      messages = [
+        "成功取消購買 #{product_names.join(';')}",
+        "退回#{transaction.amount}",
+        "目前花費 #{-1 * account.balance}"
+      ]
+      send_messages(messages)
+    end
+
     private
 
     def purchase_receipt(transaction)

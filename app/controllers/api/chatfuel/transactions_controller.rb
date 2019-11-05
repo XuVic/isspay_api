@@ -10,14 +10,10 @@ module Api::Chatfuel
 
     def destroy
       authorize! :destroy, @transaction
-      
+      product_names = @transaction.product_names      
       DeleteTransaction.new(@transaction).call!
-
       current_user.reload_account
-      message = "取消購買 #{@transaction.product_names.join(';')} " \
-                "退回 #{@transaction.amount}，目前餘額 #{current_user.balance}" 
-
-      replier.send_messages([message])
+      replier.destroy(product_names, @transaction, current_user.account)
     end
 
     private
