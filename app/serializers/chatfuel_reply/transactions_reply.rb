@@ -10,10 +10,11 @@ module ChatfuelReply
       replies = []
       replies << quick_reply('還要吃', url: products_url('snack'))
       replies << quick_reply('還要喝', url: products_url('drink'))
+      balance = account.balance.zero? ? account.balance : account.balance * -1
       messages = [
         { text: "成功取消購買 #{product_names}" },
         { text: "退回#{transaction.amount}" },
-        { text: "目前花費 #{-1 * account.balance}", quick_replies: replies }
+        { text: "目前花費 #{balance}", quick_replies: replies }
       ]
       set_reply_body messages
     end
