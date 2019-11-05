@@ -22,8 +22,32 @@ class UpdateSheetJob < ApplicationJob
   end
 
   def update_sheet_from_db
+    update_products
+    update_users
+    update_transactions
+  end
+
+  def update_products
     products = Product.all
-    @gateway.clear_page('Products')
-    @gateway.write_all(products)
+    if products.exists?
+      @gateway.clear_page('Products')
+      @gateway.write_all(products)
+    end
+  end
+
+  def update_users
+    users = User.all
+    if users.exists?
+      @gateway.clear_page('Users')
+      @gateway.write_all(users)
+    end
+  end
+
+  def update_transactions
+    transactions = Transaction.includes(:account, :purchased_products).all
+    if transactions.exists?
+      @gateway.clear_page('Transactions')
+      @gateway.write_all(transactions)
+    end
   end
 end

@@ -42,7 +42,7 @@ class ValuesWrapper
   def to_values_with(cols_order)
     records.map do |record|
       cols_order.map do |col|
-        record.send(col.to_sym)
+        record.send(col.to_sym) if record.respond_to?(col.to_sym)
       end
     end
   end

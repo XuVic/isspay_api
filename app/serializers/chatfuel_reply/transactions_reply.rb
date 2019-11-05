@@ -11,7 +11,7 @@ module ChatfuelReply
       replies << quick_reply('還要吃', url: products_url('snack'))
       replies << quick_reply('還要喝', url: products_url('drink'))
       messages = [
-        { text: "成功取消購買 #{product_names.join(';')}" },
+        { text: "成功取消購買 #{product_names}" },
         { text: "退回#{transaction.amount}" },
         { text: "目前花費 #{-1 * account.balance}", quick_replies: replies }
       ]

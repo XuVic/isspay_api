@@ -25,7 +25,7 @@ class Transaction < ApplicationRecord
   enum genre: %i[purchase transfer]
   enum state: %i[unpaid canceled paid]
 
-  delegate :owner, to: :account
+  delegate :owner, :owner_name, to: :account
 
   scope :since_scope, -> (date) { where(["created_at >= ?", date]) }
   scope :before_scope, -> (date) { where(["created_at <= ?", date]) }
@@ -49,7 +49,7 @@ class Transaction < ApplicationRecord
   end
 
   def product_names
-    products.map(&:name)
+    products.map(&:name).join(';')
   end
 
   def receiver_names

@@ -71,7 +71,7 @@ class GoogleSheetAdapter
   end
 
   def sheet_id
-    Rails.application.credentials[:google][:sheet_id]
+    Rails.application.credentials[:google][Rails.env.to_sym][:sheet_id]
   end
 
   def cols_order(table)
