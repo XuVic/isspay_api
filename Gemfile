@@ -50,7 +50,7 @@ gem 'sidekiq', '~> 5.2', '>= 5.2.7'
 # State Machine
 gem 'aasm', '~> 5.0', '>= 5.0.5'
 # CORS
-gem 'rack-cors', '~> 1.0', '>= 1.0.3'
+gem 'rack-cors', '~> 1.0'
 
 gem 'responders', '~> 3.0'
 gem 'compass-rails', github: 'Compass/compass-rails'
